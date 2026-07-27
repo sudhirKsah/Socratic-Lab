@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Send, Lightbulb, CheckCircle2, XCircle, ChevronRight, Flag, X, Award, ArrowLeft, Target, Sparkles } from 'lucide-react'
+import { Send, Lightbulb, CheckCircle2, XCircle, ChevronRight, Flag, X, Award, ArrowLeft, Target, Sparkles, Mic, MicOff, Volume2, VolumeX } from 'lucide-react'
 import useSessionStore from '../store/sessionStore'
 import useAuthStore from '../store/authStore'
 import { streamMessage } from '../services/api'
@@ -20,8 +20,13 @@ export default function Chat() {
   const [showHint, setShowHint] = useState(false)
   const [showEndModal, setShowEndModal] = useState(false)
   const [wasInitiallyActive, setWasInitiallyActive] = useState(true)
+  const [isListening, setIsListening] = useState(false)
+  const [voiceEnabled, setVoiceEnabled] = useState(true)
+  const [speakingMsgKey, setSpeakingMsgKey] = useState(null)
+
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
+  const recognitionRef = useRef(null)
 
   useEffect(() => {
     fetchSession(id).then((fetchedSession) => {
@@ -43,11 +48,109 @@ export default function Chat() {
     }
   }, [session?.status, wasInitiallyActive])
 
+  // Toggle Speech for a specific message
+  const toggleSpeakText = useCallback((msgKey, text) => {
+    if (!window.speechSynthesis) return
+
+    if (speakingMsgKey === msgKey) {
+      window.speechSynthesis.cancel()
+      setSpeakingMsgKey(null)
+      return
+    }
+
+    window.speechSynthesis.cancel()
+    if (!text) return
+
+    try {
+      const clean = text.replace(/[*#_`]/g, '').trim()
+      const utterance = new SpeechSynthesisUtterance(clean)
+      utterance.rate = 1.0
+      utterance.pitch = 1.05
+
+      utterance.onend = () => setSpeakingMsgKey(null)
+      utterance.onerror = () => setSpeakingMsgKey(null)
+
+      const voices = window.speechSynthesis.getVoices()
+      const preferred = voices.find(v => (v.name.includes('Natural') || v.name.includes('Google')) && v.lang.startsWith('en'))
+      if (preferred) utterance.voice = preferred
+
+      setSpeakingMsgKey(msgKey)
+      window.speechSynthesis.speak(utterance)
+    } catch (e) {
+      console.warn('TTS error:', e)
+      setSpeakingMsgKey(null)
+    }
+  }, [speakingMsgKey])
+
+  // Automatic Speech after streaming completes if voiceEnabled is ON
+  const autoSpeak = useCallback((text) => {
+    if (!voiceEnabled || !window.speechSynthesis || !text) return
+    window.speechSynthesis.cancel()
+    try {
+      const clean = text.replace(/[*#_`]/g, '').trim()
+      const utterance = new SpeechSynthesisUtterance(clean)
+      utterance.rate = 1.0
+      utterance.pitch = 1.05
+      const voices = window.speechSynthesis.getVoices()
+      const preferred = voices.find(v => (v.name.includes('Natural') || v.name.includes('Google')) && v.lang.startsWith('en'))
+      if (preferred) utterance.voice = preferred
+      window.speechSynthesis.speak(utterance)
+    } catch (e) {
+      console.warn('TTS error:', e)
+    }
+  }, [voiceEnabled])
+
+  // Toggle Speech-to-Text Mic
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop()
+      setIsListening(false)
+      return
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognition) {
+      alert('Voice input is not supported in this browser. Try Google Chrome or Microsoft Edge!')
+      return
+    }
+
+    try {
+      const recognition = new SpeechRecognition()
+      recognition.continuous = false
+      recognition.interimResults = true
+      recognition.lang = 'en-US'
+
+      recognition.onresult = (event) => {
+        let transcript = ''
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript
+        }
+        if (transcript) {
+          setInput(transcript)
+        }
+      }
+
+      recognition.onerror = () => setIsListening(false)
+      recognition.onend = () => setIsListening(false)
+
+      recognitionRef.current = recognition
+      recognition.start()
+      setIsListening(true)
+    } catch (err) {
+      console.error('Speech recognition error:', err)
+      setIsListening(false)
+    }
+  }
+
   const sendMessage = useCallback(async () => {
     if (!input.trim() || isStreaming || session?.status === 'complete') return
     const text = input.trim()
     setInput('')
     setShowHint(false)
+    if (isListening) {
+      recognitionRef.current?.stop()
+      setIsListening(false)
+    }
 
     addUserMessage(text)
     setStreaming(true)
@@ -65,11 +168,13 @@ export default function Chat() {
       onDone: () => {},
       onSessionUpdate: (evt) => {
         updateSession(evt)
-        finalizeStreamedMessage(accumulated || evt.fullContent || '', {
+        const finalContent = accumulated || evt.fullContent || ''
+        finalizeStreamedMessage(finalContent, {
           delta: evt.evalDelta,
           reasoning: evt.evalReasoning,
           encouragement: evt.encouragement,
         })
+        autoSpeak(finalContent)
         accumulated = ''
       },
       onError: (err) => {
@@ -80,7 +185,7 @@ export default function Chat() {
     })
 
     inputRef.current?.focus()
-  }, [input, isStreaming, id, token, session?.status])
+  }, [input, isStreaming, id, token, session?.status, isListening, autoSpeak])
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -94,7 +199,6 @@ export default function Chat() {
   const subject = session?.subject
   const phase = session?.phase
 
-  // Find next uncorrected misconception for dynamic hint
   const currentTargetMisconception = activeMisconceptions.find((m) => !m.corrected)
 
   return (
@@ -232,23 +336,32 @@ export default function Chat() {
             </div>
           </div>
 
-          {isComplete && (
+          <div className="flex items-center gap-3">
+            {/* Free Voice Output Toggle */}
             <button
-              onClick={() => navigate(`/session/${id}/complete`)}
-              className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1.5">
-              <Award size={14} /> View Score Report ({session?.masteryScore || understandingLevel}%)
+              onClick={() => {
+                const next = !voiceEnabled
+                setVoiceEnabled(next)
+                if (!next) window.speechSynthesis?.cancel()
+              }}
+              className={`p-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                voiceEnabled
+                  ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
+                  : 'bg-white/5 text-slate-500 hover:text-slate-300'
+              }`}
+              title={voiceEnabled ? 'AI Auto-Voice Enabled (Click to Mute)' : 'AI Auto-Voice Muted (Click to Enable)'}>
+              {voiceEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+              <span className="hidden sm:inline">{voiceEnabled ? 'Auto-Voice ON' : 'Auto-Voice OFF'}</span>
             </button>
-          )}
 
-          {/* Mobile understanding pill */}
-          {!isComplete && (
-            <div className="flex items-center gap-2 lg:hidden">
-              <div className="w-20 meter-track">
-                <div className="meter-fill" style={{ width: `${understandingLevel}%` }} />
-              </div>
-              <span className="text-sm font-bold">{understandingLevel}%</span>
-            </div>
-          )}
+            {isComplete && (
+              <button
+                onClick={() => navigate(`/session/${id}/complete`)}
+                className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1.5">
+                <Award size={14} /> Score Report ({session?.masteryScore || understandingLevel}%)
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Completed session notification banner */}
@@ -268,16 +381,19 @@ export default function Chat() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-1">
-          {messages.map((msg, i) => (
-            <MessageBubble
-              key={msg._id || i}
-              message={msg}
-              persona={persona}
-              isLatestAI={msg.role === 'assistant' && i === messages.length - 1}
-              showEval={msg.role === 'assistant' && msg.evalDelta != null && i === messages.length - 1}
-              evalData={lastEval}
-            />
-          ))}
+          {messages.map((msg, i) => {
+            const msgKey = msg._id || i
+            const isSpeaking = speakingMsgKey === msgKey
+            return (
+              <MessageBubble
+                key={msgKey}
+                message={msg}
+                persona={persona}
+                isSpeaking={isSpeaking}
+                onToggleSpeak={() => toggleSpeakText(msgKey, msg.content)}
+              />
+            )
+          })}
 
           {/* Streaming bubble */}
           {isStreaming && (
@@ -365,12 +481,26 @@ export default function Chat() {
           style={{ background: 'rgba(15,23,42,0.9)' }}>
           <div className="flex gap-2 items-end">
             {!isComplete && (
-              <button onClick={() => setShowHint(!showHint)}
-                className={`flex-shrink-0 p-2.5 rounded-xl transition-all ${showHint ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'btn-ghost'}`}
-                title="Teaching hint">
-                <Lightbulb size={16} />
-              </button>
+              <>
+                <button onClick={() => setShowHint(!showHint)}
+                  className={`flex-shrink-0 p-2.5 rounded-xl transition-all ${showHint ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'btn-ghost'}`}
+                  title="Teaching hint">
+                  <Lightbulb size={16} />
+                </button>
+
+                {/* Free Speech-to-Text Mic Button */}
+                <button onClick={toggleListening}
+                  className={`flex-shrink-0 p-2.5 rounded-xl transition-all ${
+                    isListening
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse'
+                      : 'btn-ghost text-slate-400 hover:text-slate-200'
+                  }`}
+                  title={isListening ? 'Stop Listening' : 'Speak to AI Student (Free Mic)'}>
+                  {isListening ? <MicOff size={16} /> : <Mic size={16} />}
+                </button>
+              </>
             )}
+
             <div className="flex-1 relative">
               <textarea
                 ref={inputRef}
@@ -378,7 +508,7 @@ export default function Chat() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={isStreaming || isComplete}
-                placeholder={isComplete ? 'This session is completed. (Read-only mode)' : `Explain to ${persona?.name || 'the student'}...`}
+                placeholder={isListening ? '🎙️ Listening... speak clearly into mic...' : isComplete ? 'This session is completed. (Read-only mode)' : `Explain to ${persona?.name || 'the student'}...`}
                 rows={1}
                 className="input-field w-full px-4 py-3 text-sm resize-none leading-relaxed disabled:opacity-50"
                 style={{ maxHeight: '120px', overflowY: 'auto' }}
@@ -388,6 +518,7 @@ export default function Chat() {
                 }}
               />
             </div>
+
             {!isComplete && (
               <button
                 onClick={sendMessage}
@@ -397,8 +528,9 @@ export default function Chat() {
               </button>
             )}
           </div>
-          <div className="text-xs text-slate-600 mt-2 text-center">
-            {isComplete ? 'Completed session history • Read-only' : 'Press Enter to send · Shift+Enter for new line'}
+          <div className="text-xs text-slate-600 mt-2 text-center flex items-center justify-center gap-2">
+            {isListening && <span className="text-red-400 font-semibold animate-pulse">● Recording Voice</span>}
+            <span>{isComplete ? 'Completed session history • Read-only' : 'Press Enter to send · Click 🎙️ for Free Mic Voice Mode'}</span>
           </div>
         </div>
       </div>
@@ -433,7 +565,7 @@ export default function Chat() {
   )
 }
 
-function MessageBubble({ message, persona }) {
+function MessageBubble({ message, persona, isSpeaking, onToggleSpeak }) {
   const isUser = message.role === 'user'
 
   if (isUser) {
@@ -447,19 +579,40 @@ function MessageBubble({ message, persona }) {
   }
 
   return (
-    <div className="flex gap-3 items-end mb-3 animate-fade-up">
+    <div className="flex gap-3 items-end mb-3 animate-fade-up group">
       <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base flex-shrink-0 mb-0.5"
         style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.15)' }}>
         {persona?.avatar || '🤖'}
       </div>
       <div className="max-w-lg">
-        <div className="flex items-center gap-2 mb-1.5 ml-1">
-          <span className="text-xs font-semibold text-amber-400/80">{persona?.name || 'Student'}</span>
-          {message.phase === 2 && (
-            <span className="text-xs px-1.5 py-0.5 rounded-full font-medium"
-              style={{ background: 'rgba(20,184,166,0.1)', color: '#14B8A6', fontSize: '10px' }}>
-              Phase 2
-            </span>
+        <div className="flex items-center justify-between gap-2 mb-1.5 ml-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-amber-400/80">{persona?.name || 'Student'}</span>
+            {message.phase === 2 && (
+              <span className="text-xs px-1.5 py-0.5 rounded-full font-medium"
+                style={{ background: 'rgba(20,184,166,0.1)', color: '#14B8A6', fontSize: '10px' }}>
+                Phase 2
+              </span>
+            )}
+          </div>
+          {onToggleSpeak && (
+            <button
+              onClick={onToggleSpeak}
+              className={`p-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                isSpeaking
+                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 opacity-100'
+                  : 'opacity-50 group-hover:opacity-100 text-slate-400 hover:text-amber-400 hover:bg-white/5'
+              }`}
+              title={isSpeaking ? 'Click to Stop Voice' : 'Listen to Student'}>
+              {isSpeaking ? (
+                <>
+                  <VolumeX size={18} className="text-amber-400 animate-pulse" />
+                  <span className="text-[11px] font-semibold text-amber-400">Stop</span>
+                </>
+              ) : (
+                <Volume2 size={18} />
+              )}
+            </button>
           )}
         </div>
         <div className="bubble-ai px-4 py-3">

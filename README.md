@@ -1,31 +1,41 @@
-# 🎓 SocraticLab — AI-Powered Reverse-Learning Platform
+# 🎓 SocraticLab — AI-Powered Reverse-Learning & Socratic Platform
 
 > **"If you want to master something, teach it."** — *Feynman Technique*
 
-SocraticLab is an AI-powered educational platform designed around the **Feynman Technique**. Instead of consuming passive lectures or asking AI to explain topics to you, **you become the teacher**. You teach an AI student persona who holds authentic misconceptions, asks probing questions, and pushes back until you deliver a clear, accurate, and deep explanation.
+SocraticLab is an AI-powered reverse-learning educational platform built around the **Feynman Technique**. Instead of consuming passive lectures or listening to lectures or asking an AI to explain things to you, **you become the teacher**. You teach an AI student persona who holds realistic misconceptions, asks probing questions, and pushes back until you deliver a clear, accurate, and deep explanation.
 
 ---
 
 ## 🌟 Key Features
 
-### 📖 1. Lecture Mode (Primary Workflow)
-- **Content Ingestion**: Write a full lecture or upload **PDF / DOCX notes**.
-- **Dynamic AI Misconception Extraction**: The AI analyzes your lecture content and dynamically extracts 3–4 realistic misconceptions, logic gaps, or false assumptions specific to what you taught (or glossed over).
-- **First-Person Student Reflection**: The AI student writes a first-person summary reflecting how it interpreted your lecture ("I think I understood X... but isn't Y true?").
-- **Phase 2 Q&A**: Enter an interactive Q&A where the AI student challenges you directly on its lecture-derived misconceptions.
+### 🎙️ 1. 100% Free Voice Mode (Speech-to-Text & Text-to-Speech)
+- **Hands-Free Teaching**: Speak directly to your AI student using the built-in microphone button (Web Speech API).
+- **AI Student Voice Output**: The AI student speaks its questions and confusion back to you out loud using browser speech synthesis.
+- **Zero API Costs**: Runs 100% client-side in Google Chrome, Microsoft Edge, and Safari with zero extra billing!
 
-### ⚡ 2. Socratic Mode (Live Chat)
-- Jump straight into interactive, live back-and-forth teaching from Turn 1.
-- The AI student is assigned dynamic topic-based misconceptions tailored to your chosen subject and difficulty level.
+### 📖 2. Lecture Mode (Reverse-Learning Pipeline)
+- **Content Ingestion**: Write typed notes or upload **PDF / DOCX** lecture materials.
+- **Dynamic AI Misconception Extraction**: The AI reads your lecture notes and extracts 3–4 authentic misconceptions and logic gaps tailored to what you explained.
+- **First-Person Reflection**: The AI student writes a first-person summary reflecting how it interpreted your lecture (*"I think I understood X... but isn't Y true?"*).
+- **Phase 2 Q&A**: Transition to interactive Q&A where the AI student asks clarifying questions based on your lecture.
 
-### 🎒 3. Dynamic Student Persona Generator & Class Levels
-- Choose from pre-seeded personas spanning **Class 1–10, High School, B.Tech Engineering, and College levels**.
-- **Customize Traits**: Adjust difficulty (*Beginner*, *Intermediate*, *Advanced*) and **Stubbornness Level (1 to 5)**.
-- **AI Persona Generator**: Dynamically generate new AI student personas (name, avatar, backstory) using LLM calls on the fly.
+### ⚡ 3. Socratic Mode (Live Back-and-Forth Chat)
+- Jump directly into live, interactive teaching from Turn 1.
+- **Student Speaks First**: The AI student opens the session with a contextual greeting and states its doubt/misconception.
 
-### 📊 4. Real-Time Evaluator & Delta Scoring
-- After every message, an evaluator AI assesses your explanation for accuracy, clarity, and targeted misconception resolution.
-- Receives real-time **+ / - delta score updates**, evaluative reasoning, and friendly encouragement via Server-Sent Events (SSE).
+### 🎒 4. Custom Persona Generator & Class Level System
+- **Pre-Seeded Personas**: Choose from pre-generated personas spanning **Class 6–10, High School, B.Tech CS, and Postgraduate** levels.
+- **AI Persona Generator**: Instantly generate new AI student personas (name, avatar, backstory, difficulty, and stubbornness 1–5) using LLM calls.
+
+### 📚 5. Dedicated Sessions & Notes Hub (`/sessions`)
+- **Active & Completed Sessions**: Revisit active sessions to continue teaching, or review completed session transcripts in read-only mode.
+- **Teaching Materials Repository**: Automatically organizes your notes and uploaded files by **Subject** and **Topic** for review.
+
+### 📊 6. Real-Time Evaluator & Live Delta Scoring
+- Evaluator AI analyzes your explanation after every message for accuracy, clarity, and misconception resolution (+ / - delta).
+- Receive real-time score updates, evaluative reasoning, and pedagogical encouragement via **Server-Sent Events (SSE)** streaming.
+
+---
 
 ### 🔀 5. Dynamic Multi-Model Subject Router
 - Automatically routes AI completion calls to optimal models based on the domain (e.g., Llama 3 / Qwen / DeepSeek via Groq & OpenRouter):
@@ -35,38 +45,11 @@ SocraticLab is an AI-powered educational platform designed around the **Feynman 
   - 💻 **Programming**: Code logic, edge cases & algorithmic complexity
   - ✍️ **Writing**: Essay structure, thesis clarity & grammar mechanics
 
----
+## 🏗️ Technical Stack
 
-## 🏗️ Architecture & Technical Stack
-
-```
-                        ┌─────────────────────────────────────────┐
-                        │              React Frontend             │
-                        │    (Vite + Tailwind v4 + Zustand)       │
-                        └────────────────────┬────────────────────┘
-                                             │ HTTP / SSE Streaming
-                                             ▼
-                        ┌─────────────────────────────────────────┐
-                        │             Express Backend             │
-                        │        (Node.js + MongoDB Atlas)        │
-                        └───────┬─────────────────────────┬───────┘
-                                │                         │
-             ┌──────────────────┴──────────┐   ┌──────────┴──────────────────┐
-             │ Dynamic Misconception &     │   │ Real-time Evaluator Engine  │
-             │ AI Student Stream           │   │ (+/- Delta Scoring)         │
-             └──────────────────┬──────────┘   └──────────┬──────────────────┘
-                                │                         │
-                                ▼                         ▼
-                        ┌─────────────────────────────────────────┐
-                        │            Subject AI Router            │
-                        │     (Groq API / OpenRouter / DeepSeek)  │
-                        └─────────────────────────────────────────┘
-```
-
-### 💻 Technologies
-- **Frontend**: React 18, Vite, Tailwind CSS v4 (`@theme` tokens & CSS cascade layers), Zustand (State Management), Axios, Lucide Icons, Server-Sent Events (SSE).
-- **Backend**: Node.js, Express, MongoDB Atlas, Mongoose, Multer, `pdf-parse`, `mammoth` (DOCX extractor).
-- **AI Integration**: Groq API / OpenRouter / DeepSeek API with streaming SSE endpoints.
+- **Frontend**: React 18, Vite, Tailwind CSS v4 (`@theme` tokens & CSS cascade layers), Zustand (State Management), Web Speech API, Axios, Lucide Icons, Server-Sent Events (SSE).
+- **Backend**: Node.js, Express, MongoDB Atlas, Mongoose, Multer, `pdf-parse`, `mammoth` (DOCX parser).
+- **AI Router & APIs**: Groq API (`llama-3.3-70b-versatile`), OpenRouter (`qwen-2.5-coder-32b`), DeepSeek API, with streaming SSE endpoints.
 
 ---
 
@@ -74,49 +57,35 @@ SocraticLab is an AI-powered educational platform designed around the **Feynman 
 
 ```
 Socratic Lab/
-├── client/                     # Vite + React Frontend
+├── client/                     # React + Vite Frontend
 │   ├── src/
-│   │   ├── components/         # Reusable Layout & Nav Components
-│   │   │   ├── layout/         # AppNav header and navigation
-│   │   ├── pages/              # App Router Views
-│   │   │   ├── Landing.jsx     # Hero section & feature breakdown
-│   │   │   ├── Login.jsx       # Auth Login view
-│   │   │   ├── Signup.jsx      # Auth Signup view
-│   │   │   ├── Dashboard.jsx   # Subject progress & session history
-│   │   │   ├── Setup.jsx       # 4-Step Session & Persona Configurator
-│   │   │   ├── LecturePhase1.jsx# Phase 1: Ingest text/PDF & reflection card
-│   │   │   ├── Chat.jsx        # Main SSE Teaching Interface (Phase 2 / Socratic)
-│   │   │   ├── Complete.jsx    # Session Results & Mastery breakdown
-│   │   │   └── Settings.jsx    # Profile & settings configuration
-│   │   ├── services/           # Axios & API client configuration
-│   │   ├── store/              # Zustand Stores (authStore, sessionStore)
-│   │   └── index.css           # Tailwind CSS v4 design system
-│   ├── package.json
-│   └── vite.config.js
+│   │   ├── components/         # Reusable Components (AppNav, ProtectedRoute)
+│   │   ├── pages/              # Router Views
+│   │   │   ├── Landing.jsx     # Hero section & feature overview
+│   │   │   ├── Login.jsx       # Authentication
+│   │   │   ├── Dashboard.jsx   # Subject progress & real-time stats
+│   │   │   ├── Setup.jsx       # 4-Step Configurator & AI Persona Generator
+│   │   │   ├── LecturePhase1.jsx# Phase 1: Ingest text/PDF & generate reflection
+│   │   │   ├── Chat.jsx        # Live SSE Chat + Voice Mode + Dynamic Hints
+│   │   │   ├── Sessions.jsx    # Dedicated Sessions & Notes Repository
+│   │   │   ├── Complete.jsx    # Mastery score breakdown card
+│   │   │   └── Settings.jsx    # Profile settings
+│   │   ├── services/           # Axios & SSE API client
+│   │   └── store/              # Zustand Stores (authStore, sessionStore)
+│   └── package.json
 │
 ├── server/                     # Express + Node Backend
 │   ├── src/
-│   │   ├── controllers/        # Express Route Handlers
-│   │   │   ├── authController.js    # JWT Register/Login
-│   │   │   ├── lectureController.js # Phase 1 Ingestion, Extraction & Reflection
-│   │   │   ├── personaController.js # List, Create & Generate AI Students
-│   │   │   └── sessionController.js # Session Lifecycle, SSE Streaming & Evaluation
-│   │   ├── middleware/         # Auth & File Upload Middlewares
+│   │   ├── controllers/        # Express Handlers (auth, lecture, persona, session)
 │   │   ├── models/             # Mongoose Schemas (User, AIStudent, Session)
-│   │   ├── routes/             # Express API Routes
-│   │   ├── services/           # Core AI & File Engines
-│   │   │   ├── aiService.js     # Groq / OpenRouter AI Client (Stream & JSON)
-│   │   │   ├── evaluator.js     # Real-time Teaching Evaluator
-│   │   │   ├── fileExtractor.js # PDF & DOCX Extractor
-│   │   │   ├── promptBuilder.js # System Prompts & Dynamic Extractor
-│   │   │   └── subjectRouter.js # AI Subject Routing Matrix
-│   │   ├── seed.js             # Database Seeder (Pre-generated AI Personas)
-│   │   └── index.js            # Express App Entrypoint
+│   │   ├── services/           # AI Engines (aiService, evaluator, fileExtractor, promptBuilder, subjectRouter)
+│   │   ├── seed.js             # Pre-seeded AI Personas
+│   │   └── index.js            # Express Entrypoint
 │   ├── .env.example
 │   └── package.json
 │
-├── package.json                # Root package for concurrent runner
-└── README.md                   # Documentation
+├── package.json                # Root concurrent script runner
+└── README.md                   # Project Documentation
 ```
 
 ---
@@ -126,7 +95,7 @@ Socratic Lab/
 ### Prerequisites
 - **Node.js**: v18.0.0 or higher
 - **MongoDB**: MongoDB Atlas URI or local instance
-- **API Keys**: Groq API Key (or OpenRouter API Key)
+- **API Keys**: Groq API Key (or OpenRouter / DeepSeek key)
 
 ---
 
@@ -143,24 +112,23 @@ npm install
 cp .env.example .env
 ```
 
-Edit `server/.env` and fill in your keys:
+Set environment variables in `server/.env`:
 ```env
 PORT=5000
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/socraticlab
 JWT_SECRET=your_super_secret_jwt_key
 GROQ_API_KEY=gsk_your_groq_api_key_here
-OPENROUTER_API_KEY=sk-or-your_openrouter_key_here
 ```
 
-Seed initial AI student personas:
+Seed database with pre-configured student personas:
 ```bash
 npm run seed
 ```
 
-Start the backend server:
+Start Express server:
 ```bash
 npm start
-# Server will run on http://localhost:5000
+# Server runs on http://localhost:5000
 ```
 
 ---
@@ -168,51 +136,21 @@ npm start
 ### 2. Frontend Setup
 
 ```bash
-# Navigate to client directory
 cd client
-
-# Install dependencies
 npm install
-
-# Start Vite development server
 npm run dev
-# Frontend will run on http://localhost:5173
+# Frontend runs on http://localhost:5173
 ```
 
 ---
 
-## 🔌 API Reference
+### 3. Concurrent Launch (Root)
 
-### Authentication (`/api/auth`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/auth/signup` | Register a new user account |
-| `POST` | `/api/auth/login` | Log in and receive JWT token |
-| `GET` | `/api/auth/me` | Fetch active user profile |
-
-### AI Student Personas (`/api/personas`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/api/personas` | List AI student personas (filterable by subject) |
-| `GET` | `/api/personas/:id` | Fetch specific persona details |
-| `POST` | `/api/personas` | Create a custom AI student persona |
-| `POST` | `/api/personas/generate` | Generate a new AI student persona using LLM |
-
-### Sessions & Chat (`/api/sessions`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/sessions` | Create a new session (Lecture or Socratic mode) |
-| `GET` | `/api/sessions` | List user's active & past sessions |
-| `GET` | `/api/sessions/:id` | Get full session state & dialogue history |
-| `POST` | `/api/sessions/:id/messages` | **SSE Endpoint**: Send teaching message, stream AI reply & receive live evaluation score |
-| `POST` | `/api/sessions/:id/complete` | Complete session and calculate final mastery score |
-
-### Lecture Mode Phase 1 (`/api/sessions/:id/lecture`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/sessions/:id/lecture/text` | Append typed text to lecture content |
-| `POST` | `/api/sessions/:id/lecture/file` | Upload PDF/DOCX to extract & append to lecture content |
-| `POST` | `/api/sessions/:id/lecture/finish` | **Finish Phase 1**: AI dynamically extracts misconceptions from lecture text, generates student reflection, and starts Phase 2 |
+From the root directory:
+```bash
+npm install
+npm run dev
+```
 
 ---
 
@@ -221,35 +159,36 @@ npm run dev
 ```
 ┌──────────────────────────────────────────────────────────┐
 │                   1. Configure Session                   │
-│   Select Subject, Workflow (Lecture/Socratic), Class     │
-│   Level (Grade 1-10, B.Tech) & AI Student Stubbornness   │
+│   Select Subject, Class Level (Grade 6-10, B.Tech) &     │
+│   AI Student Stubbornness or Generate Custom Persona     │
 └────────────────────────────┬─────────────────────────────┘
                              │
                              ▼
 ┌──────────────────────────────────────────────────────────┐
-│                  2. Lecture Ingestion                    │
-│   Write text or upload PDF/DOCX notes (Phase 1)          │
+│             2. Teach (Lecture or Socratic)               │
+│   Write/upload notes (Lecture Mode) or start live chat   │
+│   with student asking first question (Socratic Mode)     │
 └────────────────────────────┬─────────────────────────────┘
                              │
                              ▼
 ┌──────────────────────────────────────────────────────────┐
-│          3. Dynamic AI Misconception Extraction          │
-│   AI analyzes your notes & generates 3-4 realistic       │
-│   misconceptions specific to what you taught             │
+│            3. Dynamic AI Misconception Extraction        │
+│   AI extracts realistic misconceptions from your material │
+│   and generates a first-person student reflection        │
 └────────────────────────────┬─────────────────────────────┘
                              │
                              ▼
 ┌──────────────────────────────────────────────────────────┐
-│              4. AI Student Reflection & Q&A              │
-│   AI student writes reflection ("I think I understand    │
-│   X... but isn't Y true?") & enters Phase 2 Q&A         │
+│             4. Interactive Voice & SSE Chat              │
+│   Answer student questions via Free Mic Voice Mode ->    │
+│   Real-time evaluator scores explanation (+/- delta)    │
 └────────────────────────────┬─────────────────────────────┘
                              │
                              ▼
 ┌──────────────────────────────────────────────────────────┐
-│            5. Interactive Live Evaluation                │
-│   Answer student questions -> Real-time evaluator        │
-│   scores explanation (+/- delta) -> Reach 85%+ Mastery   │
+│                 5. Mastery Certificate                   │
+│   Reach 85%+ understanding score to complete session     │
+│   and view complete performance report                   │
 └──────────────────────────────────────────────────────────┘
 ```
 
