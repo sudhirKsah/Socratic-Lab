@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { BookOpen, Clock, CheckCircle2, PlayCircle, Plus, FileText, Search, GraduationCap } from 'lucide-react'
+import { BookOpen, Clock, CheckCircle2, PlayCircle, Plus, FileText, Search, GraduationCap, Award } from 'lucide-react'
 import AppNav from '../components/layout/AppNav'
 import useSessionStore from '../store/sessionStore'
 
@@ -178,30 +178,38 @@ export default function Sessions() {
 function SessionCard({ session, navigate }) {
   const persona = session.aiStudentId
   const isComplete = session.status === 'complete'
-  const isAbandoned = session.status === 'abandoned'
   const isActive = session.status === 'active'
 
-  const handleAction = () => {
-    if (isComplete) {
-      navigate(`/session/${session._id}/complete`)
-    } else if (session.mode === 'lecture' && session.phase === 1) {
+  const handleCardClick = () => {
+    if (session.mode === 'lecture' && session.phase === 1) {
       navigate(`/session/${session._id}/lecture`)
     } else {
       navigate(`/session/${session._id}`)
     }
   }
 
+  const handleScoreButtonClick = (e) => {
+    e.stopPropagation()
+    if (isComplete) {
+      navigate(`/session/${session._id}/complete`)
+    } else {
+      handleCardClick()
+    }
+  }
+
   return (
-    <div className="card p-5 flex flex-col justify-between hover:border-amber-500/30 transition-all">
+    <div
+      onClick={handleCardClick}
+      className="card p-5 flex flex-col justify-between hover:border-amber-500/40 cursor-pointer transition-all hover:shadow-lg hover:shadow-amber-500/5 group">
       <div>
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform">
               {persona?.avatar || '🤖'}
             </div>
             <div>
               <div className="font-semibold text-sm flex items-center gap-2">
-                <span>{persona?.name || 'AI Student'}</span>
+                <span className="group-hover:text-amber-400 transition-colors">{persona?.name || 'AI Student'}</span>
                 {persona?.gradeLevel && (
                   <span className="text-[11px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20 inline-flex items-center gap-1">
                     <GraduationCap size={10} /> {persona.gradeLevel}
@@ -231,7 +239,7 @@ function SessionCard({ session, navigate }) {
           <div className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
             {session.subject} {session.mode === 'lecture' ? '• 📖 Lecture Mode' : '• ⚡ Socratic Mode'}
           </div>
-          <h4 className="font-semibold text-base text-slate-100 line-clamp-1">
+          <h4 className="font-semibold text-base text-slate-100 line-clamp-1 group-hover:text-white transition-colors">
             {session.topic || `${session.subject} Session`}
           </h4>
         </div>
@@ -240,8 +248,8 @@ function SessionCard({ session, navigate }) {
       <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
         <div>
           {session.masteryScore != null ? (
-            <div className="text-sm font-bold text-amber-400">
-              {session.masteryScore}% Mastery
+            <div className="text-sm font-bold text-amber-400 flex items-center gap-1">
+              <Award size={14} /> {session.masteryScore}% Mastery
             </div>
           ) : (
             <div className="text-xs text-slate-500">In Progress</div>
@@ -249,13 +257,13 @@ function SessionCard({ session, navigate }) {
         </div>
 
         <button
-          onClick={handleAction}
+          onClick={handleScoreButtonClick}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
             isComplete
-              ? 'bg-white/10 hover:bg-white/15 text-slate-200'
+              ? 'bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 border border-amber-500/30'
               : 'btn-primary'
           }`}>
-          {isComplete ? 'Review Score & Chat' : isActive ? 'Continue Teaching →' : 'View Session'}
+          {isComplete ? 'Review Score 🏆' : isActive ? 'Continue Teaching →' : 'View Session'}
         </button>
       </div>
     </div>
@@ -268,7 +276,9 @@ function MaterialCard({ session, navigate }) {
     : 'No excerpt available.'
 
   return (
-    <div className="card p-5 space-y-3 hover:border-teal-500/30 transition-all">
+    <div
+      onClick={() => navigate(`/session/${session._id}`)}
+      className="card p-5 space-y-3 hover:border-teal-500/40 cursor-pointer transition-all group">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-teal-400 px-2 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/20">
           {session.subject} Note
@@ -278,7 +288,7 @@ function MaterialCard({ session, navigate }) {
         </span>
       </div>
 
-      <h4 className="font-semibold text-base text-slate-100">
+      <h4 className="font-semibold text-base text-slate-100 group-hover:text-teal-300 transition-colors">
         {session.topic || `${session.subject} Lecture Notes`}
       </h4>
 
@@ -290,11 +300,9 @@ function MaterialCard({ session, navigate }) {
         <span className="text-xs text-slate-500">
           {session.lectureContent?.length || 0} characters
         </span>
-        <button
-          onClick={() => navigate(`/session/${session._id}`)}
-          className="text-xs text-amber-400 hover:underline font-semibold flex items-center gap-1">
+        <span className="text-xs text-amber-400 font-semibold flex items-center gap-1 group-hover:underline">
           Open Lecture Session →
-        </button>
+        </span>
       </div>
     </div>
   )
