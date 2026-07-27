@@ -84,7 +84,6 @@ Socratic Lab/
 │   ├── .env.example
 │   └── package.json
 │
-├── package.json                # Root concurrent script runner
 └── README.md                   # Project Documentation
 ```
 
@@ -118,6 +117,8 @@ PORT=5000
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/socraticlab
 JWT_SECRET=your_super_secret_jwt_key
 GROQ_API_KEY=gsk_your_groq_api_key_here
+DEEPSEEK_API_KEY=sk-...
+OPENROUTER_API_KEY=your_openrouter_key
 ```
 
 Seed database with pre-configured student personas:
