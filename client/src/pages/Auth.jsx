@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Zap, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { Zap, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react'
 import useAuthStore from '../store/authStore'
 
 export default function Login() {
@@ -17,8 +17,38 @@ export default function Login() {
     if (ok) navigate('/dashboard')
   }
 
+  const handleQuickDemoLogin = async () => {
+    setEmail('test@gmail.com')
+    setPassword('password123')
+    clearError()
+    const ok = await login('test@gmail.com', 'password123')
+    if (ok) navigate('/dashboard')
+  }
+
   return (
     <AuthShell title="Welcome back" subtitle="Sign in to your SocraticLab account">
+
+      {/* Quick Judge Login Pill */}
+      <div className="mb-5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 flex flex-col gap-2">
+        <div className="flex items-center justify-between text-xs font-semibold text-amber-400">
+          <span className="flex items-center gap-1.5"><Sparkles size={13} /> Judge Quick Login</span>
+          <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded-full text-amber-300">Pre-seeded</span>
+        </div>
+        <p className="text-[11px] text-slate-300">Access pre-filled sessions, past notes, and completed scorecards instantly.</p>
+        <button
+          type="button"
+          onClick={handleQuickDemoLogin}
+          className="btn-amber py-2 text-xs font-semibold flex items-center justify-center gap-1.5 w-full cursor-pointer">
+          <span>⚡ One-Click Sign In (`test@gmail.com`)</span>
+        </button>
+      </div>
+
+      <div className="relative flex py-2 items-center mb-4">
+        <div className="flex-grow border-t border-white/10"></div>
+        <span className="flex-shrink mx-3 text-slate-500 text-[11px] uppercase font-mono tracking-wider">or sign in manually</span>
+        <div className="flex-grow border-t border-white/10"></div>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-medium text-slate-400 mb-1.5">Email</label>
@@ -70,7 +100,7 @@ export function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
-  const { signup, isLoading, error, clearError } = useAuthStore()
+  const { signup, login, isLoading, error, clearError } = useAuthStore()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -80,8 +110,36 @@ export function Signup() {
     if (ok) navigate('/dashboard')
   }
 
+  const handleQuickDemoLogin = async () => {
+    clearError()
+    const ok = await login('test@gmail.com', 'password123')
+    if (ok) navigate('/dashboard')
+  }
+
   return (
     <AuthShell title="Start teaching" subtitle="Create your SocraticLab account — it's free">
+
+      {/* Quick Judge Login Pill */}
+      <div className="mb-5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 flex flex-col gap-2">
+        <div className="flex items-center justify-between text-xs font-semibold text-amber-400">
+          <span className="flex items-center gap-1.5"><Sparkles size={13} /> Judge Quick Access</span>
+          <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded-full text-amber-300">Pre-seeded</span>
+        </div>
+        <p className="text-[11px] text-slate-300">Skip registration and jump into pre-seeded sessions immediately.</p>
+        <button
+          type="button"
+          onClick={handleQuickDemoLogin}
+          className="btn-amber py-2 text-xs font-semibold flex items-center justify-center gap-1.5 w-full cursor-pointer">
+          <span>⚡ One-Click Sign In (`test@gmail.com`)</span>
+        </button>
+      </div>
+
+      <div className="relative flex py-2 items-center mb-4">
+        <div className="flex-grow border-t border-white/10"></div>
+        <span className="flex-shrink mx-3 text-slate-500 text-[11px] uppercase font-mono tracking-wider">or register new account</span>
+        <div className="flex-grow border-t border-white/10"></div>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-medium text-slate-400 mb-1.5">Your Name</label>

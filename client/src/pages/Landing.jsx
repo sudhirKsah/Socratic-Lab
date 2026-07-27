@@ -1,7 +1,36 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Zap, ArrowRight, Brain, Target, Trophy, BookOpen, ChevronRight } from 'lucide-react'
+import { Zap, ArrowRight, Brain, Target, Trophy, BookOpen, ChevronRight, Mic, Volume2, Sparkles, Award, FileText, CheckCircle2, ShieldCheck } from 'lucide-react'
 
-const SUBJECTS = ['Math', 'Physics', 'Chemistry', 'Programming', 'Writing']
+const DEMO_SESSIONS = [
+  {
+    subject: 'Physics',
+    avatar: '⚡',
+    studentName: 'Sam (Grade 10)',
+    misconception: 'Thinks punching a wall delivers force to the wall, but the wall doesn\'t push back on your hand.',
+    userExplanation: 'Newton\'s 3rd Law states forces are equal and opposite. The wall pushes back on your hand with exact same force!',
+    scoreDelta: '+12 pts',
+    understanding: 78,
+  },
+  {
+    subject: 'Programming',
+    avatar: '💻',
+    studentName: 'Alex (B.Tech CS)',
+    misconception: 'Believes array lookups are O(n) because the computer scans elements sequentially.',
+    userExplanation: 'Arrays store elements in contiguous memory. Using array[i], memory address is base + i * size in O(1) time!',
+    scoreDelta: '+15 pts',
+    understanding: 92,
+  },
+  {
+    subject: 'Math',
+    avatar: '🧮',
+    studentName: 'Maya (Middle School)',
+    misconception: 'Thinks multiplying two negative numbers makes a smaller negative number.',
+    userExplanation: 'A negative means taking away or turning around. Taking away a debt (negative) adds to your wealth (positive)!',
+    scoreDelta: '+10 pts',
+    understanding: 85,
+  },
+]
 
 const HOW_IT_WORKS = [
   {
@@ -12,8 +41,8 @@ const HOW_IT_WORKS = [
   },
   {
     step: '02',
-    title: 'Teach Freely',
-    desc: 'Explain the concept in your own words. The AI student listens, pushes back, and asks questions based on what they misunderstand.',
+    title: 'Teach Freely (Voice or Text)',
+    desc: 'Explain concepts in your own words or speak via free browser mic. The AI student pushes back with authentic misconceptions.',
     icon: <Brain size={20} />,
   },
   {
@@ -25,10 +54,13 @@ const HOW_IT_WORKS = [
 ]
 
 export default function Landing() {
+  const [activeDemo, setActiveDemo] = useState(0)
+  const currentDemo = DEMO_SESSIONS[activeDemo]
+
   return (
-    <div className="min-h-screen" style={{ background: '#0F172A' }}>
+    <div className="min-h-screen text-slate-100" style={{ background: '#0F172A' }}>
       {/* ── Nav ──────────────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/[0.06]">
+      <nav className="sticky top-0 left-0 right-0 z-40 glass border-b border-white/[0.06]">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center"
@@ -38,33 +70,30 @@ export default function Landing() {
             <span className="font-display font-bold text-base tracking-tight">SocraticLab</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/login" className="nav-link px-3 py-1.5">Sign In</Link>
-            <Link to="/signup"
-              className="btn-primary px-4 py-2 text-sm">
-              Get Started
-            </Link>
+            <Link to="/login" className="nav-link px-3 py-1.5 text-sm">Sign In</Link>
+            <Link to="/signup" className="btn-primary px-4 py-2 text-sm">Get Started</Link>
           </div>
         </div>
       </nav>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative pt-36 pb-28 px-6 overflow-hidden">
+      <section className="relative pt-20 pb-20 px-6 overflow-hidden">
         {/* Ambient glows */}
         <div className="hero-glow" style={{
           top: '-100px', left: '50%', transform: 'translateX(-60%)',
-          background: 'radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%)'
+          background: 'radial-gradient(circle, rgba(245,158,11,0.15) 0%, transparent 70%)'
         }} />
         <div className="hero-glow" style={{
           top: '100px', right: '-100px',
-          background: 'radial-gradient(circle, rgba(20,184,166,0.1) 0%, transparent 70%)'
+          background: 'radial-gradient(circle, rgba(20,184,166,0.12) 0%, transparent 70%)'
         }} />
 
-        <div className="max-w-4xl mx-auto text-center relative z-10">
+        <div className="max-w-5xl mx-auto text-center relative z-10">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 text-xs font-semibold tracking-wide"
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-6 text-xs font-semibold tracking-wide"
             style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', color: '#F59E0B' }}>
-            <Zap size={11} fill="currentColor" />
-            Feynman Technique · Powered by AI
+            <Zap size={12} fill="currentColor" />
+            Feynman Technique · AI Reverse Learning Platform
           </div>
 
           <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold leading-tight mb-6 tracking-tight">
@@ -72,9 +101,9 @@ export default function Landing() {
             <br />
             is to <span className="text-gradient">teach it</span>
           </h1>
-          <p className="text-slate-400 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            SocraticLab flips the AI tutor. You teach a stubborn AI student who holds real misconceptions.
-            Explain clearly, correct what they misunderstand, and earn your mastery score.
+          <p className="text-slate-300 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
+            SocraticLab flips traditional tutoring. You become the teacher to an AI student who holds realistic misconceptions.
+            Teach via voice or text, correct their misunderstandings, and earn your mastery score.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -88,42 +117,97 @@ export default function Landing() {
             </Link>
           </div>
 
-          {/* Subject tags */}
-          <div className="flex flex-wrap gap-2 justify-center mt-10">
-            {SUBJECTS.map((s) => (
-              <span key={s} className="px-3 py-1 rounded-full text-xs font-medium"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#94A3B8' }}>
-                {s}
-              </span>
-            ))}
-          </div>
         </div>
 
-        {/* Hero visual — fake chat window */}
-        <div className="max-w-2xl mx-auto mt-16 relative z-10">
-          <div className="card p-5 space-y-4 shadow-2xl"
-            style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.06), 0 40px 80px rgba(0,0,0,0.5)' }}>
-            {/* Window bar */}
-            <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06]">
-              <div className="flex gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+        {/* ── Interactive Demo Visualizer Widget ─────────────────────────────── */}
+        <div className="max-w-3xl mx-auto mt-14 relative z-10">
+          <div className="card p-6 space-y-4 shadow-2xl border border-white/10"
+            style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.08), 0 40px 80px rgba(0,0,0,0.6)' }}>
+
+            {/* Tab switch */}
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              <div className="flex items-center gap-2">
+                {DEMO_SESSIONS.map((demo, idx) => (
+                  <button
+                    key={demo.subject}
+                    onClick={() => setActiveDemo(idx)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      activeDemo === idx
+                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}>
+                    {demo.avatar} {demo.subject}
+                  </button>
+                ))}
               </div>
-              <div className="flex-1 text-center text-xs text-slate-500 font-medium">Teaching Session · Physics</div>
-              <div className="text-xs font-semibold" style={{ color: '#14B8A6' }}>⚡ Sam · Understanding 42%</div>
-            </div>
-            {/* Messages */}
-            <div className="space-y-3">
-              <ChatBubble role="ai" name="Sam" avatar="⚡"
-                text="I still don't get why the wall doesn't get hurt when I punch it. If Newton's 3rd law says forces are equal... shouldn't we both feel the same pain?" />
-              <ChatBubble role="user"
-                text="Great question Sam! The forces ARE equal — both you and the wall exert the same force on each other. But force isn't the same as damage. F = ma means your soft hand accelerates a lot, while the rigid wall barely moves." />
-              <div className="flex items-center gap-2 text-xs ml-2">
-                <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#10B981' }} />
-                <span style={{ color: '#10B981' }}>+8 pts · Understanding rising...</span>
+              <div className="text-xs font-bold text-teal-400 flex items-center gap-1">
+                <span>{currentDemo.understanding}% Mastery</span>
               </div>
             </div>
+
+            {/* Simulated Live Chat */}
+            <div className="space-y-3.5 py-1">
+              <div className="flex gap-3 items-start">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center text-base flex-shrink-0">
+                  {currentDemo.avatar}
+                </div>
+                <div className="bubble-ai px-4 py-3 text-xs sm:text-sm max-w-xl">
+                  <span className="text-xs font-semibold text-amber-400 block mb-1">{currentDemo.studentName}</span>
+                  "{currentDemo.misconception}"
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <div className="bubble-user px-4 py-3 text-xs sm:text-sm max-w-xl">
+                  <span className="text-xs font-semibold text-teal-300 block mb-1">Teacher (You)</span>
+                  {currentDemo.userExplanation}
+                </div>
+              </div>
+
+              {/* SSE Score Feedback */}
+              <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2.5 text-xs">
+                <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                  <CheckCircle2 size={15} />
+                  <span>Real-Time Evaluator: Concept Corrected! ({currentDemo.scoreDelta})</span>
+                </div>
+                <span className="text-slate-400 text-[11px]">Sub-200ms SSE Stream</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Key Feature Cards ────────────────────────────────────────────── */}
+      <section className="py-16 px-6 border-t border-white/[0.06]" style={{ background: '#111827' }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="font-display text-3xl sm:text-4xl font-bold mb-3">Why SocraticLab</h2>
+            <p className="text-slate-400 text-sm max-w-xl mx-auto">
+              Purpose-built features that transform passive studying into active, Feynman-technique mastery.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <FeatureCard
+              icon={<Mic size={20} className="text-amber-400" />}
+              title="100% Free Voice Mode"
+              desc="Speak directly to your AI student using Web Speech API mic transcription & text-to-speech audio with zero API cost."
+            />
+            <FeatureCard
+              icon={<FileText size={20} className="text-teal-400" />}
+              title="PDF / DOCX Ingestion"
+              desc="Upload your lecture notes. The AI extracts authentic student misconceptions automatically in Lecture Mode."
+            />
+            <FeatureCard
+              icon={<Sparkles size={20} className="text-amber-400" />}
+              title="Class Level Customization"
+              desc="Pre-seeded and AI-generated personas across Class 6-10, High School, and B.Tech undergrad levels."
+            />
+            <FeatureCard
+              icon={<Award size={20} className="text-teal-400" />}
+              title="Dedicated Sessions Hub"
+              desc="Revisit active sessions to continue teaching, or review read-only completed sessions and mastery scorecards."
+            />
           </div>
         </div>
       </section>
@@ -140,7 +224,7 @@ export default function Landing() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {HOW_IT_WORKS.map((item) => (
-              <div key={item.step} className="card p-6 relative overflow-hidden group hover:border-amber-500/20 transition-all duration-300">
+              <div key={item.step} className="card p-6 relative overflow-hidden group hover:border-amber-500/30 transition-all duration-300">
                 <div className="absolute -top-4 -right-4 font-display text-6xl font-bold opacity-5 select-none">
                   {item.step}
                 </div>
@@ -156,29 +240,29 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── Two modes ──────────────────────────────────────────────────────── */}
+      {/* ── Two Modes ──────────────────────────────────────────────────────── */}
       <section className="py-16 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="font-display text-3xl font-bold mb-3">Two ways to teach</h2>
+            <h2 className="font-display text-3xl font-bold mb-3">Two Ways to Teach</h2>
             <p className="text-slate-400 text-sm">Pick the mode that fits how you learn.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ModeCard
               icon="⚡"
               title="Socratic Mode"
-              badge="Interactive"
+              badge="Interactive Q&A"
               badgeColor="#F59E0B"
-              desc="Jump straight into the conversation. The AI student questions you immediately, revealing misconceptions as you talk."
-              points={['Immediate back-and-forth', 'AI reveals confusion naturally', 'Best for review & recall']}
+              desc="Jump straight into the conversation. The AI student opens the session with an authentic doubt, revealing misconceptions as you talk."
+              points={['Immediate back-and-forth dialogue', 'AI student speaks first with doubt', 'Best for active recall & quick testing']}
             />
             <ModeCard
               icon="📖"
               title="Lecture Mode"
-              badge="Structured"
+              badge="Text / PDF Upload"
               badgeColor="#14B8A6"
-              desc="Write your full explanation first (or upload a PDF/DOCX). The AI student reads it, then questions you on exactly what was unclear."
-              points={['Upload notes or textbook excerpts', 'AI reads your full explanation', 'Best for deep topics']}
+              desc="Upload a PDF/DOCX or write lecture notes. The AI extracts 3-4 misconceptions, writes a student reflection, and enters Q&A."
+              points={['Upload course syllabus or lecture notes', 'AI extracts misconceptions automatically', 'Best for complex textbook chapters']}
             />
           </div>
         </div>
@@ -219,24 +303,14 @@ export default function Landing() {
   )
 }
 
-function ChatBubble({ role, name, avatar, text }) {
-  if (role === 'user') {
-    return (
-      <div className="flex justify-end">
-        <div className="bubble-user px-4 py-2.5 text-sm max-w-xs">{text}</div>
-      </div>
-    )
-  }
+function FeatureCard({ icon, title, desc }) {
   return (
-    <div className="flex gap-2.5 items-end">
-      <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm flex-shrink-0"
-        style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.2)' }}>
-        {avatar}
+    <div className="card p-6 hover:border-amber-500/30 transition-all space-y-3">
+      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+        {icon}
       </div>
-      <div className="bubble-ai px-4 py-2.5 text-sm max-w-xs">
-        <span className="text-xs font-semibold text-amber-400/70 block mb-0.5">{name}</span>
-        {text}
-      </div>
+      <h3 className="font-semibold text-base text-slate-100">{title}</h3>
+      <p className="text-xs text-slate-400 leading-relaxed">{desc}</p>
     </div>
   )
 }
