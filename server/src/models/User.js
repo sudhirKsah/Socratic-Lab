@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
     passwordHash: {
       type: String,
       required: true,
-      select: false, // never returned in queries unless explicitly requested
+      select: false,
     },
     name: {
       type: String,
@@ -26,7 +26,6 @@ const userSchema = new mongoose.Schema(
       enum: ['student', 'teacher'],
       default: 'student',
     },
-    // progress[subject] = highest mastery score (0-100)
     progress: {
       type: Map,
       of: Number,
@@ -44,23 +43,25 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Hash password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('passwordHash')) return next();
   this.passwordHash = await bcrypt.hash(this.passwordHash, 12);
   next();
 });
 
-// Instance method: compare plain password to hash
 userSchema.methods.comparePassword = function (plainPassword) {
   return bcrypt.compare(plainPassword, this.passwordHash);
 };
 
-// Remove sensitive fields when converting to JSON
 userSchema.methods.toPublicJSON = function () {
   const obj = this.toObject();
   delete obj.passwordHash;
   delete obj.__v;
+  if (this.progress instanceof Map) {
+    obj.progress = Object.fromEntries(this.progress);
+  } else if (obj.progress && typeof obj.progress === 'object') {
+    obj.progress = { ...obj.progress };
+  }
   return obj;
 };
 

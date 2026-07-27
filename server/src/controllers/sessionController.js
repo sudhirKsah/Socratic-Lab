@@ -4,7 +4,7 @@
  * Handles the full teaching session lifecycle for both modes:
  *
  * SOCRATIC MODE:
- *   create → generates initial topic misconceptions via AI → live back-and-forth chat (streaming AI + evaluator) → complete
+ *   create → generates initial topic misconceptions & AI opening message → live back-and-forth chat (streaming AI + evaluator) → complete
  *
  * LECTURE MODE:
  *   create (mode='lecture') →
@@ -39,6 +39,7 @@ async function createSession(req, res, next) {
         subject: customPersona.subject,
         name: customPersona.name,
         avatar: customPersona.avatar || '🎓',
+        gradeLevel: customPersona.gradeLevel || 'Grade 10',
         personalityIntensity: Number(customPersona.personalityIntensity) || 3,
         difficulty: customPersona.difficulty || 'intermediate',
         backstory: customPersona.backstory || `${customPersona.name} is eager to learn ${customPersona.subject}.`,
@@ -74,12 +75,56 @@ async function createSession(req, res, next) {
       }
     }
 
+    // ── Generate AI opening question for Socratic Mode ──────────────────────
+    let openingMessage = '';
+    if (sessionMode === 'socratic') {
+      try {
+        const routeConfig = getRoute(persona.subject);
+        const misconceptionsText = (initialMisconceptions || [])
+          .map((m) => `- ${m.concept}: "${m.wrongBelief}"`)
+          .join('\n');
+
+        const openingPrompt = `You are ${persona.name}, a ${persona.gradeLevel || 'student'} learning ${persona.subject}.
+${persona.backstory ? `Backstory: ${persona.backstory}` : ''}
+Topic: ${topic || persona.subject}
+
+Your misconceptions about this topic:
+${misconceptionsText}
+
+Write your FIRST opening message to your teacher (the user).
+- Greet your teacher warmly as a student.
+- State what you are trying to understand about ${topic || persona.subject}, and ask a specific question or state one of your misconceptions as a doubt.
+- Keep it natural, conversational, 2-3 sentences max.
+- Do NOT break character. Do NOT give correct answers. You are the student.
+
+Write ONLY your opening student message. No preamble.`;
+
+        openingMessage = await chatCompletion({
+          routeConfig,
+          systemPrompt: openingPrompt,
+          userMessage: 'Start the teaching session now.',
+        });
+      } catch (err) {
+        console.warn('[sessionController] Opening message fallback:', err.message);
+        openingMessage = `Hi teacher! I'm trying to learn about ${topic || persona.subject}, but I'm having some trouble understanding how it works. Could you explain it to me?`;
+      }
+    }
+
+    const initialMessages = [];
+    if (sessionMode === 'socratic' && openingMessage) {
+      initialMessages.push({
+        role: 'assistant',
+        content: openingMessage,
+        phase: null,
+      });
+    }
+
     const session = await Session.create({
       userId: req.user._id,
       aiStudentId: persona._id,
       subject: persona.subject,
       topic: topic || '',
-      messages: [],
+      messages: initialMessages,
       understandingLevel: 0,
       activeMisconceptions: initialMisconceptions.map((m) => ({
         concept: m.concept,
@@ -103,8 +148,7 @@ async function createSession(req, res, next) {
 async function listSessions(req, res, next) {
   try {
     const sessions = await Session.find({ userId: req.user._id })
-      .populate('aiStudentId', 'name subject avatar')
-      .select('-messages')
+      .populate('aiStudentId', 'name subject avatar gradeLevel')
       .sort({ createdAt: -1 });
 
     res.json({ sessions });
@@ -242,14 +286,13 @@ async function sendMessage(req, res, next) {
       session.completedAt = new Date();
       session.masteryScore = session.computeMasteryScore();
 
+      const user = await User.findById(req.user._id);
+      const currentScore = user.progress?.get ? (user.progress.get(session.subject) || 0) : (user.progress?.[session.subject] || 0);
+      const updatedScore = Math.max(session.masteryScore, currentScore);
+
       await User.findByIdAndUpdate(req.user._id, {
         $inc: { totalSessions: 1, totalMasteryPoints: session.masteryScore },
-        $set: {
-          [`progress.${session.subject}`]: Math.max(
-            session.masteryScore,
-            req.user.progress?.get?.(session.subject) || 0
-          ),
-        },
+        $set: { [`progress.${session.subject}`]: updatedScore },
       });
     }
 
@@ -292,8 +335,13 @@ async function completeSession(req, res, next) {
     session.masteryScore = session.computeMasteryScore();
     await session.save();
 
+    const user = await User.findById(req.user._id);
+    const currentScore = user.progress?.get ? (user.progress.get(session.subject) || 0) : (user.progress?.[session.subject] || 0);
+    const updatedScore = Math.max(session.masteryScore, currentScore);
+
     await User.findByIdAndUpdate(req.user._id, {
       $inc: { totalSessions: 1, totalMasteryPoints: session.masteryScore },
+      $set: { [`progress.${session.subject}`]: updatedScore },
     });
 
     res.json({ session });
