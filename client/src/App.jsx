@@ -8,6 +8,7 @@ import Chat from './pages/Chat'
 import LecturePhase1 from './pages/LecturePhase1'
 import Complete from './pages/Complete'
 import Settings from './pages/Settings'
+import Sessions from './pages/Sessions'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import useAuthStore from './store/authStore'
 
@@ -28,6 +29,7 @@ export default function App() {
 
         {/* Protected */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/sessions" element={<ProtectedRoute><Sessions /></ProtectedRoute>} />
         <Route path="/setup" element={<ProtectedRoute><Setup /></ProtectedRoute>} />
         <Route path="/session/:id" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path="/session/:id/lecture" element={<ProtectedRoute><LecturePhase1 /></ProtectedRoute>} />

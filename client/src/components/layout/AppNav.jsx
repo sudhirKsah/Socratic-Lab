@@ -27,6 +27,7 @@ export default function AppNav() {
         {/* Links */}
         <div className="flex items-center gap-1">
           <NavItem to="/dashboard" icon={<LayoutDashboard size={15} />} label="Dashboard" active={pathname === '/dashboard'} />
+          <NavItem to="/sessions" icon={<BookOpen size={15} />} label="Sessions & Notes" active={pathname === '/sessions'} />
           <NavItem to="/settings" icon={<Settings size={15} />} label="Settings" active={pathname === '/settings'} />
         </div>
 

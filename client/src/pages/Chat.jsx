@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { Send, Lightbulb, CheckCircle2, XCircle, ChevronRight, Flag, X } from 'lucide-react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { Send, Lightbulb, CheckCircle2, XCircle, ChevronRight, Flag, X, Award, ArrowLeft, Target, Sparkles } from 'lucide-react'
 import useSessionStore from '../store/sessionStore'
 import useAuthStore from '../store/authStore'
 import { streamMessage } from '../services/api'
@@ -19,26 +19,32 @@ export default function Chat() {
   const [input, setInput] = useState('')
   const [showHint, setShowHint] = useState(false)
   const [showEndModal, setShowEndModal] = useState(false)
+  const [wasInitiallyActive, setWasInitiallyActive] = useState(true)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
   useEffect(() => {
-    fetchSession(id)
+    fetchSession(id).then((fetchedSession) => {
+      if (fetchedSession?.status === 'complete') {
+        setWasInitiallyActive(false)
+      }
+    })
   }, [id])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, streamBuffer])
 
-  // Redirect when session completes
+  // Redirect to completion screen ONLY if session completed during live active chat
   useEffect(() => {
-    if (session?.status === 'complete') {
-      setTimeout(() => navigate(`/session/${id}/complete`), 1200)
+    if (session?.status === 'complete' && wasInitiallyActive) {
+      const timer = setTimeout(() => navigate(`/session/${id}/complete`), 1500)
+      return () => clearTimeout(timer)
     }
-  }, [session?.status])
+  }, [session?.status, wasInitiallyActive])
 
   const sendMessage = useCallback(async () => {
-    if (!input.trim() || isStreaming) return
+    if (!input.trim() || isStreaming || session?.status === 'complete') return
     const text = input.trim()
     setInput('')
     setShowHint(false)
@@ -56,9 +62,7 @@ export default function Chat() {
         accumulated += delta
         appendStreamDelta(delta)
       },
-      onDone: (fullContent) => {
-        // session_update comes after done in the SSE stream
-      },
+      onDone: () => {},
       onSessionUpdate: (evt) => {
         updateSession(evt)
         finalizeStreamedMessage(accumulated || evt.fullContent || '', {
@@ -76,7 +80,7 @@ export default function Chat() {
     })
 
     inputRef.current?.focus()
-  }, [input, isStreaming, id, token])
+  }, [input, isStreaming, id, token, session?.status])
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -90,6 +94,9 @@ export default function Chat() {
   const subject = session?.subject
   const phase = session?.phase
 
+  // Find next uncorrected misconception for dynamic hint
+  const currentTargetMisconception = activeMisconceptions.find((m) => !m.corrected)
+
   return (
     <div className="flex h-screen" style={{ background: '#0F172A' }}>
 
@@ -99,14 +106,19 @@ export default function Chat() {
 
         {/* Persona header */}
         <div className="p-5 border-b border-white/[0.06]">
+          <div className="flex items-center gap-2 mb-3">
+            <Link to="/sessions" className="text-xs text-slate-500 hover:text-slate-300 flex items-center gap-1">
+              <ArrowLeft size={12} /> Back to Sessions
+            </Link>
+          </div>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
               style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.2)' }}>
               {persona?.avatar || '🤖'}
             </div>
             <div>
-              <div className="font-semibold text-sm">{persona?.name || '...'}</div>
-              <div className="text-xs text-slate-500">{subject} Student</div>
+              <div className="font-semibold text-sm">{persona?.name || 'Student'}</div>
+              <div className="text-xs text-slate-500">{persona?.gradeLevel || subject} Student</div>
               <div className="flex items-center gap-1 mt-1">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="w-2 h-2 rounded-sm"
@@ -168,8 +180,9 @@ export default function Chat() {
                     : <XCircle size={13} className="flex-shrink-0 mt-0.5" style={{ color: '#EF4444' }} />}
                   <div>
                     <div className="font-medium text-xs text-slate-300">{m.concept}</div>
+                    <div className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">{m.wrongBelief}</div>
                     {m.corrected && (
-                      <div className="text-xs mt-0.5" style={{ color: '#10B981' }}>Corrected ✓</div>
+                      <div className="text-xs font-semibold mt-1" style={{ color: '#10B981' }}>Corrected ✓</div>
                     )}
                   </div>
                 </div>
@@ -183,12 +196,19 @@ export default function Chat() {
           </div>
         </div>
 
-        {/* End session button */}
+        {/* End / View Report button */}
         <div className="p-4 border-t border-white/[0.06]">
-          <button onClick={() => setShowEndModal(true)}
-            className="btn-ghost w-full py-2 text-xs flex items-center justify-center gap-2 text-red-400 border-red-500/20 hover:bg-red-500/5">
-            <Flag size={12} /> End Session
-          </button>
+          {isComplete ? (
+            <button onClick={() => navigate(`/session/${id}/complete`)}
+              className="btn-teal w-full py-2 text-xs flex items-center justify-center gap-2">
+              <Award size={13} /> View Mastery Score Report
+            </button>
+          ) : (
+            <button onClick={() => setShowEndModal(true)}
+              className="btn-ghost w-full py-2 text-xs flex items-center justify-center gap-2 text-red-400 border-red-500/20 hover:bg-red-500/5">
+              <Flag size={12} /> End Session
+            </button>
+          )}
         </div>
       </aside>
 
@@ -199,29 +219,52 @@ export default function Chat() {
         <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06] flex-shrink-0"
           style={{ background: 'rgba(15,23,42,0.8)', backdropFilter: 'blur(12px)' }}>
           <div className="flex items-center gap-3">
+            <Link to="/sessions" className="text-slate-400 hover:text-slate-200 lg:hidden pr-2 border-r border-white/10">
+              <ArrowLeft size={16} />
+            </Link>
             <div className="text-xl">{persona?.avatar || '🤖'}</div>
             <div>
               <div className="font-semibold text-sm">{persona?.name}</div>
               <div className="flex items-center gap-1.5">
-                <div className={`w-1.5 h-1.5 rounded-full ${isStreaming ? 'animate-pulse bg-amber-400' : 'bg-green-400'}`} />
-                <span className="text-xs text-slate-500">{isStreaming ? 'Thinking...' : 'Online'}</span>
+                <div className={`w-1.5 h-1.5 rounded-full ${isComplete ? 'bg-emerald-400' : isStreaming ? 'animate-pulse bg-amber-400' : 'bg-green-400'}`} />
+                <span className="text-xs text-slate-500">{isComplete ? 'Session Completed' : isStreaming ? 'Thinking...' : 'Online'}</span>
               </div>
             </div>
           </div>
 
-          {/* Mobile understanding pill */}
-          <div className="flex items-center gap-2 lg:hidden">
-            <div className="w-20 meter-track">
-              <div className="meter-fill" style={{ width: `${understandingLevel}%` }} />
-            </div>
-            <span className="text-sm font-bold">{understandingLevel}%</span>
-          </div>
+          {isComplete && (
+            <button
+              onClick={() => navigate(`/session/${id}/complete`)}
+              className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1.5">
+              <Award size={14} /> View Score Report ({session?.masteryScore || understandingLevel}%)
+            </button>
+          )}
 
-          <button onClick={() => setShowEndModal(true)}
-            className="lg:hidden text-slate-500 hover:text-red-400 p-1.5 transition-colors">
-            <X size={16} />
-          </button>
+          {/* Mobile understanding pill */}
+          {!isComplete && (
+            <div className="flex items-center gap-2 lg:hidden">
+              <div className="w-20 meter-track">
+                <div className="meter-fill" style={{ width: `${understandingLevel}%` }} />
+              </div>
+              <span className="text-sm font-bold">{understandingLevel}%</span>
+            </div>
+          )}
         </div>
+
+        {/* Completed session notification banner */}
+        {isComplete && (
+          <div className="bg-emerald-500/10 border-b border-emerald-500/20 px-4 py-2.5 flex items-center justify-between text-xs text-emerald-300">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={15} className="text-emerald-400" />
+              <span>This session is completed with a <strong>{session?.masteryScore || understandingLevel}% Mastery Score</strong>. You are reviewing past dialogue in read-only mode.</span>
+            </div>
+            <button
+              onClick={() => navigate(`/session/${id}/complete`)}
+              className="font-semibold text-emerald-400 hover:underline flex items-center gap-1">
+              Score Card <ChevronRight size={12} />
+            </button>
+          </div>
+        )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-1">
@@ -239,7 +282,7 @@ export default function Chat() {
           {/* Streaming bubble */}
           {isStreaming && (
             <div className="flex gap-3 items-end animate-fade-up">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base flex-shrink-0"
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base flex-shrink-0 mb-0.5"
                 style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.15)' }}>
                 {persona?.avatar || '🤖'}
               </div>
@@ -261,7 +304,7 @@ export default function Chat() {
         </div>
 
         {/* Live eval feedback strip */}
-        {lastEval && !isStreaming && (
+        {lastEval && !isStreaming && !isComplete && (
           <div className="mx-4 sm:mx-6 mb-3 animate-fade-up">
             <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs"
               style={{
@@ -277,17 +320,43 @@ export default function Chat() {
           </div>
         )}
 
-        {/* Hint panel */}
-        {showHint && session?.topic && (
+        {/* Dynamic Teaching Hint panel */}
+        {showHint && !isComplete && (
           <div className="mx-4 sm:mx-6 mb-3 p-4 rounded-xl text-xs animate-fade-up"
-            style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}>
-            <div className="flex items-center gap-2 mb-2 font-semibold text-amber-400">
-              <Lightbulb size={13} /> Teaching hint
+            style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 font-semibold text-amber-400 text-sm">
+                <Lightbulb size={15} /> Dynamic Teaching Strategy
+              </div>
+              <button
+                onClick={() => setShowHint(false)}
+                className="text-slate-500 hover:text-slate-300 p-0.5">
+                <X size={14} />
+              </button>
             </div>
-            <p className="text-slate-400 leading-relaxed">
-              Try addressing {persona?.name}'s most recent question with a concrete analogy or real-world example.
-              If they seem confused about a core concept, break it down step by step before moving on.
-            </p>
+
+            {currentTargetMisconception ? (
+              <div className="space-y-1.5 text-slate-300">
+                <div className="flex items-center gap-1.5 font-medium text-amber-300">
+                  <Target size={13} /> Focus Concept: <span>"{currentTargetMisconception.concept}"</span>
+                </div>
+                <p className="text-slate-400 leading-relaxed">
+                  <strong>Student's misconception:</strong> "{currentTargetMisconception.wrongBelief}"
+                </p>
+                <div className="text-slate-300 bg-white/5 p-2.5 rounded-lg border border-white/5 mt-2">
+                  💡 <strong>Suggested approach:</strong> {currentTargetMisconception.hint || `Use a real-world example or step-by-step counter-example to show why this assumption fails.`}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-1 text-slate-300">
+                <div className="flex items-center gap-1.5 font-medium text-emerald-400">
+                  <Sparkles size={13} /> All initial misconceptions resolved!
+                </div>
+                <p className="text-slate-400 leading-relaxed">
+                  Ask <strong>{persona?.name}</strong> to summarize the main concept in their own words or ask if they have any remaining doubts.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -295,11 +364,13 @@ export default function Chat() {
         <div className="flex-shrink-0 px-4 sm:px-6 py-4 border-t border-white/[0.06]"
           style={{ background: 'rgba(15,23,42,0.9)' }}>
           <div className="flex gap-2 items-end">
-            <button onClick={() => setShowHint(!showHint)}
-              className={`flex-shrink-0 p-2.5 rounded-xl transition-all ${showHint ? 'bg-amber-500/15 text-amber-400' : 'btn-ghost'}`}
-              title="Teaching hint">
-              <Lightbulb size={16} />
-            </button>
+            {!isComplete && (
+              <button onClick={() => setShowHint(!showHint)}
+                className={`flex-shrink-0 p-2.5 rounded-xl transition-all ${showHint ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'btn-ghost'}`}
+                title="Teaching hint">
+                <Lightbulb size={16} />
+              </button>
+            )}
             <div className="flex-1 relative">
               <textarea
                 ref={inputRef}
@@ -307,9 +378,9 @@ export default function Chat() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={isStreaming || isComplete}
-                placeholder={isComplete ? 'Session complete!' : `Explain to ${persona?.name || 'the student'}...`}
+                placeholder={isComplete ? 'This session is completed. (Read-only mode)' : `Explain to ${persona?.name || 'the student'}...`}
                 rows={1}
-                className="input-field w-full px-4 py-3 text-sm resize-none leading-relaxed"
+                className="input-field w-full px-4 py-3 text-sm resize-none leading-relaxed disabled:opacity-50"
                 style={{ maxHeight: '120px', overflowY: 'auto' }}
                 onInput={(e) => {
                   e.target.style.height = 'auto'
@@ -317,15 +388,17 @@ export default function Chat() {
                 }}
               />
             </div>
-            <button
-              onClick={sendMessage}
-              disabled={!input.trim() || isStreaming || isComplete}
-              className="flex-shrink-0 btn-primary p-2.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">
-              <Send size={16} />
-            </button>
+            {!isComplete && (
+              <button
+                onClick={sendMessage}
+                disabled={!input.trim() || isStreaming}
+                className="flex-shrink-0 btn-primary p-2.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">
+                <Send size={16} />
+              </button>
+            )}
           </div>
           <div className="text-xs text-slate-600 mt-2 text-center">
-            Press Enter to send · Shift+Enter for new line
+            {isComplete ? 'Completed session history • Read-only' : 'Press Enter to send · Shift+Enter for new line'}
           </div>
         </div>
       </div>
@@ -360,7 +433,7 @@ export default function Chat() {
   )
 }
 
-function MessageBubble({ message, persona, isLatestAI, showEval, evalData }) {
+function MessageBubble({ message, persona }) {
   const isUser = message.role === 'user'
 
   if (isUser) {

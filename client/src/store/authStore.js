@@ -41,13 +41,30 @@ const useAuthStore = create(
         set({ user: null, token: null })
       },
 
+      fetchUser: async () => {
+        const { token } = get()
+        if (!token) return null
+        try {
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+          const { data } = await api.get('/auth/me')
+          if (data?.user) {
+            set({ user: data.user })
+            return data.user
+          }
+        } catch (err) {
+          console.warn('[authStore] Failed to fetch current user profile:', err.message)
+        }
+        return null
+      },
+
       clearError: () => set({ error: null }),
 
       // Restore token on app load
-      init: () => {
-        const { token } = get()
+      init: async () => {
+        const { token, fetchUser } = get()
         if (token) {
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+          await fetchUser()
         }
       },
     }),
