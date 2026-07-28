@@ -1,7 +1,12 @@
 import axios from 'axios'
 
+const rawBase = import.meta.env.VITE_API_URL || ''
+const API_BASE_URL = rawBase
+  ? (rawBase.endsWith('/api') ? rawBase : `${rawBase.replace(/\/$/, '')}/api`)
+  : '/api'
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -24,7 +29,7 @@ export async function streamMessage({ sessionId, content, token, onDelta, onSess
   let fullContent = ''
 
   try {
-    const response = await fetch(`/api/sessions/${sessionId}/messages`, {
+    const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}/messages`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
