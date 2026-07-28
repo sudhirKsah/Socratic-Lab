@@ -1,7 +1,7 @@
 const rateLimit = require('express-rate-limit');
 
 /**
- * Rate limiter for AI endpoints — expensive calls.
+ * Rate limiter for AI endpoints
  * 30 requests per minute per IP.
  */
 const aiLimiter = rateLimit({
@@ -13,7 +13,7 @@ const aiLimiter = rateLimit({
 });
 
 /**
- * Rate limiter for auth endpoints — prevent brute force.
+ * Rate limiter for auth endpoints
  * 10 requests per minute per IP.
  */
 const authLimiter = rateLimit({

@@ -2,7 +2,6 @@ const AIStudent = require('../models/AIStudent');
 const { chatCompletion } = require('../services/aiService');
 const { getRoute } = require('../services/subjectRouter');
 
-// GET /api/personas
 async function listPersonas(req, res, next) {
   try {
     const { subject } = req.query;
@@ -16,7 +15,6 @@ async function listPersonas(req, res, next) {
   }
 }
 
-// GET /api/personas/:id
 async function getPersona(req, res, next) {
   try {
     const persona = await AIStudent.findById(req.params.id).select('-baseSystemPrompt');
@@ -29,7 +27,6 @@ async function getPersona(req, res, next) {
   }
 }
 
-// POST /api/personas — Create a custom AI student persona
 async function createPersona(req, res, next) {
   try {
     const { subject, name, avatar, gradeLevel, personalityIntensity, difficulty, backstory } = req.body;
@@ -57,7 +54,6 @@ async function createPersona(req, res, next) {
   }
 }
 
-// POST /api/personas/generate — Generate AI student persona with LLM
 async function generatePersona(req, res, next) {
   try {
     const { subject = 'Math', gradeLevel = 'Grade 10', difficulty = 'intermediate', personalityIntensity = 3 } = req.body;

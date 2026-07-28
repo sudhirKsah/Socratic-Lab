@@ -1,13 +1,3 @@
-/**
- * subjectRouter.js
- *
- * Maps a subject to the best available AI provider + model.
- *
- * Strategy:
- *  - Groq / OpenRouter configurable per route.
- *  - Programming / Math / Science models on Groq / OpenRouter.
- */
-
 const ROUTES = {
   Math: {
     provider: 'groq',

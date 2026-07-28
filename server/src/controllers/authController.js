@@ -1,7 +1,6 @@
 const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
 
-// POST /api/auth/signup
 async function signup(req, res, next) {
   try {
     const { email, password, name, role } = req.body;
@@ -32,7 +31,6 @@ async function signup(req, res, next) {
   }
 }
 
-// POST /api/auth/login
 async function login(req, res, next) {
   try {
     const { email, password } = req.body;
@@ -58,9 +56,7 @@ async function login(req, res, next) {
   }
 }
 
-// GET /api/auth/me
 async function getMe(req, res) {
-  // req.user is already attached by authenticate middleware
   res.json({ user: req.user.toPublicJSON() });
 }
 

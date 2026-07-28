@@ -1,18 +1,3 @@
-/**
- * lectureController.js
- *
- * Handles the Lecture Mode two-phase flow:
- *
- * Phase 1 endpoints:
- *   POST /api/sessions/:id/lecture/text    — submit typed text (append to lectureContent)
- *   POST /api/sessions/:id/lecture/file    — upload PDF/DOCX (extract + append)
- *   POST /api/sessions/:id/lecture/finish  — close Phase 1, dynamically extract misconceptions from lecture,
- *                                            generate student reflection, transition to Phase 2
- *
- * Phase 2 uses the existing POST /api/sessions/:id/messages endpoint —
- * sessionController.sendMessage() detects mode='lecture' and uses Phase 2 prompts.
- */
-
 const Session = require('../models/Session');
 const AIStudent = require('../models/AIStudent');
 const { extractText, countWords } = require('../services/fileExtractor');
@@ -23,7 +8,6 @@ const {
   buildLectureReflectionPrompt,
 } = require('../services/promptBuilder');
 
-// ── POST /api/sessions/:id/lecture/text ──────────────────────────────────────
 async function addLectureText(req, res, next) {
   try {
     const { content } = req.body;
@@ -64,7 +48,6 @@ async function addLectureText(req, res, next) {
   }
 }
 
-// ── POST /api/sessions/:id/lecture/file ──────────────────────────────────────
 async function addLectureFile(req, res, next) {
   try {
     if (!req.file) {

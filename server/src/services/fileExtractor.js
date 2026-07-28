@@ -1,14 +1,37 @@
-/**
- * fileExtractor.js
- *
- * Extracts plain text from uploaded PDF and DOCX files.
- * Returns { text, wordCount, error }.
- */
-
-const pdfParse = require('pdf-parse');
+const pdfModule = require('pdf-parse');
 const mammoth = require('mammoth');
 
 const MAX_WORDS = 5000; // cap extracted content to avoid context overflow
+
+/**
+ * Safely parse PDF buffer across different pdf-parse library versions (v1 vs v2).
+ */
+async function parsePdfBuffer(buffer) {
+  // Case 1: pdf-parse v1.x (function exported directly)
+  if (typeof pdfModule === 'function') {
+    const data = await pdfModule(buffer);
+    return data.text || '';
+  }
+  if (typeof pdfModule.default === 'function') {
+    const data = await pdfModule.default(buffer);
+    return data.text || '';
+  }
+
+  // Case 2: pdf-parse v2.x (PDFParse class exported)
+  if (pdfModule.PDFParse) {
+    const parser = new pdfModule.PDFParse({ data: buffer });
+    if (typeof parser.load === 'function') {
+      await parser.load();
+    }
+    if (typeof parser.getText === 'function') {
+      const textResult = await parser.getText();
+      if (typeof textResult === 'string') return textResult;
+      if (textResult?.text) return textResult.text;
+    }
+  }
+
+  throw new Error('Could not initialize PDF parser.');
+}
 
 /**
  * Extract text from a buffer, dispatching by mime type.
@@ -25,8 +48,7 @@ async function extractText(buffer, mimeType, originalName) {
     let text = '';
 
     if (mimeType === 'application/pdf' || ext === 'pdf') {
-      const result = await pdfParse(buffer);
-      text = result.text;
+      text = await parsePdfBuffer(buffer);
     } else if (
       mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
       ext === 'docx'

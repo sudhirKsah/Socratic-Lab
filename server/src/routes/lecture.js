@@ -1,11 +1,3 @@
-/**
- * lecture.js — routes for Lecture Mode Phase 1
- *
- * POST /api/sessions/:id/lecture/text    — add typed text
- * POST /api/sessions/:id/lecture/file    — upload PDF or DOCX
- * POST /api/sessions/:id/lecture/finish  — close Phase 1, generate reflection
- */
-
 const router = require('express').Router({ mergeParams: true }); // inherit :id from parent
 const multer = require('multer');
 const { addLectureText, addLectureFile, finishPhase1 } = require('../controllers/lectureController');

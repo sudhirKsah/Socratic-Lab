@@ -1,12 +1,3 @@
-/**
- * evaluator.js
- *
- * After the AI student replies, this service evaluates the HUMAN's teaching quality
- * and returns a score delta + list of corrected misconceptions.
- *
- * Uses a lightweight, fast model (Llama 3.1 8B on Groq) for low latency.
- */
-
 const { chatCompletion } = require('./aiService');
 const { getEvaluatorRoute } = require('./subjectRouter');
 const { buildEvaluatorPrompt } = require('./promptBuilder');

@@ -1,16 +1,4 @@
 /**
- * promptBuilder.js
- *
- * Builds system prompts for:
- *   1. The AI Student — Socratic Mode (chat from start)
- *   2. Socratic Misconception Generator — generates initial misconceptions for Socratic mode
- *   3. Dynamic Misconception Extractor — extracts misconceptions from user lecture (Lecture mode)
- *   4. The AI Student — Lecture Mode Phase 1 Reflection
- *   5. The AI Student — Lecture Mode Phase 2 Q&A
- *   6. The Evaluator (scoring the human's teaching, both modes)
- */
-
-/**
  * Build the system prompt for the AI student agent (SOCRATIC MODE).
  */
 function buildStudentSystemPrompt(persona, activeMisconceptions, understandingLevel, topic) {

@@ -351,19 +351,18 @@ async function completeSession(req, res, next) {
 }
 
 // ── DELETE /api/sessions/:id ──────────────────────────────────────────────────
-async function abandonSession(req, res, next) {
+async function deleteSession(req, res, next) {
   try {
-    const session = await Session.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user._id, status: 'active' },
-      { status: 'abandoned' },
-      { new: true }
-    );
+    const session = await Session.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user._id,
+    });
 
     if (!session) {
-      return res.status(404).json({ error: 'Active session not found' });
+      return res.status(404).json({ error: 'Session not found' });
     }
 
-    res.json({ message: 'Session abandoned', session });
+    res.json({ message: 'Session deleted successfully', id: req.params.id });
   } catch (err) {
     next(err);
   }
@@ -375,5 +374,5 @@ module.exports = {
   getSession,
   sendMessage,
   completeSession,
-  abandonSession,
+  deleteSession,
 };

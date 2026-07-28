@@ -36,11 +36,10 @@ const sessionSchema = new mongoose.Schema(
     },
     topic: {
       type: String,
-      default: '',  // user can optionally specify a topic (e.g. "Quadratic equations")
+      default: '', 
     },
     messages: [messageSchema],
 
-    // The AI's internal understanding of the topic being taught (0-100)
     understandingLevel: {
       type: Number,
       default: 0,
@@ -48,7 +47,6 @@ const sessionSchema = new mongoose.Schema(
       max: 100,
     },
 
-    // Snapshot of misconceptions (mutable during session)
     activeMisconceptions: [
       {
         concept: String,
@@ -60,7 +58,7 @@ const sessionSchema = new mongoose.Schema(
 
     masteryScore: {
       type: Number,
-      default: null,  // set when session completes
+      default: null, 
     },
 
     status: {

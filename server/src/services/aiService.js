@@ -1,13 +1,3 @@
-/**
- * aiService.js
- *
- * Handles all AI API calls using the OpenAI-compatible SDK.
- * Supports both streaming (SSE) and non-streaming completions.
- *
- * Automatically strips reasoning/thinking blocks (<think>...</think>) from completions
- * so JSON parsing and assistant replies stay clean.
- */
-
 const OpenAI = require('openai');
 
 /**
