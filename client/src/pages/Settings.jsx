@@ -1,19 +1,9 @@
-import { useState } from 'react'
-import { User, Bell, Shield, Trash2 } from 'lucide-react'
+import { User, Bell, Shield } from 'lucide-react'
 import AppNav from '../components/layout/AppNav'
 import useAuthStore from '../store/authStore'
 
 export default function Settings() {
   const { user } = useAuthStore()
-  const [name, setName] = useState(user?.name || '')
-  const [saved, setSaved] = useState(false)
-
-  const handleSave = (e) => {
-    e.preventDefault()
-    // Would call API to update profile
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
 
   return (
     <div className="min-h-screen">
@@ -21,28 +11,34 @@ export default function Settings() {
       <main className="max-w-2xl mx-auto pt-24 pb-16 px-4 sm:px-6">
         <div className="mb-8 animate-fade-up">
           <h1 className="font-display text-2xl font-bold mb-1">Settings</h1>
-          <p className="text-slate-400 text-sm">Manage your account and preferences</p>
+          <p className="text-slate-400 text-sm">View your account profile and preferences</p>
         </div>
 
         {/* Profile */}
         <section className="card p-6 mb-4 animate-fade-up">
           <div className="flex items-center gap-3 mb-5">
             <User size={16} className="text-amber-400" />
-            <h2 className="font-semibold text-sm">Profile</h2>
+            <h2 className="font-semibold text-sm">Profile Details</h2>
           </div>
-          <form onSubmit={handleSave} className="space-y-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Display Name</label>
               <input
-                type="text" value={name} onChange={(e) => setName(e.target.value)}
-                className="input-field w-full px-3.5 py-2.5 text-sm"
+                type="text"
+                value={user?.name || ''}
+                readOnly
+                disabled
+                className="input-field w-full px-3.5 py-2.5 text-sm opacity-60 cursor-not-allowed"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1.5">Email</label>
               <input
-                type="email" value={user?.email || ''} disabled
-                className="input-field w-full px-3.5 py-2.5 text-sm opacity-50 cursor-not-allowed"
+                type="email"
+                value={user?.email || ''}
+                readOnly
+                disabled
+                className="input-field w-full px-3.5 py-2.5 text-sm opacity-60 cursor-not-allowed"
               />
             </div>
             <div>
@@ -52,10 +48,7 @@ export default function Settings() {
                 {user?.role || 'student'}
               </div>
             </div>
-            <button type="submit" className="btn-primary px-5 py-2 text-sm">
-              {saved ? '✓ Saved!' : 'Save Changes'}
-            </button>
-          </form>
+          </div>
         </section>
 
         {/* Stats */}
@@ -70,7 +63,7 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* API Keys notice */}
+        {/* AI Models notice */}
         <section className="card p-6 animate-fade-up">
           <div className="flex items-center gap-3 mb-4">
             <Bell size={16} className="text-slate-400" />
