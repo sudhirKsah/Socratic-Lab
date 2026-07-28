@@ -6,3 +6,9 @@ export default function ProtectedRoute({ children }) {
   if (!token) return <Navigate to="/login" replace />
   return children
 }
+
+export function PublicOnlyRoute({ children }) {
+  const token = useAuthStore((s) => s.token)
+  if (token) return <Navigate to="/dashboard" replace />
+  return children
+}

@@ -9,7 +9,7 @@ import LecturePhase1 from './pages/LecturePhase1'
 import Complete from './pages/Complete'
 import Settings from './pages/Settings'
 import Sessions from './pages/Sessions'
-import ProtectedRoute from './components/layout/ProtectedRoute'
+import ProtectedRoute, { PublicOnlyRoute } from './components/layout/ProtectedRoute'
 import useAuthStore from './store/authStore'
 
 export default function App() {
@@ -22,10 +22,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/" element={<PublicOnlyRoute><Landing /></PublicOnlyRoute>} />
+        <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+        <Route path="/signup" element={<PublicOnlyRoute><Signup /></PublicOnlyRoute>} />
 
         {/* Protected */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -37,7 +36,7 @@ export default function App() {
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   )
