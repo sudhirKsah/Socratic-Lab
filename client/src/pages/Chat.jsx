@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Send, Lightbulb, CheckCircle2, XCircle, ChevronRight, Flag, X, Award, ArrowLeft, Target, Sparkles, Mic, MicOff, Volume2, VolumeX } from 'lucide-react'
+import { Send, Lightbulb, CheckCircle2, XCircle, ChevronRight, Flag, X, Award, ArrowLeft, Target, Sparkles, Mic, MicOff, Volume2, VolumeX, Trash2, FileText, Copy, Check } from 'lucide-react'
 import useSessionStore from '../store/sessionStore'
 import useAuthStore from '../store/authStore'
 import { streamMessage } from '../services/api'
@@ -13,12 +13,17 @@ export default function Chat() {
     session, messages, understandingLevel, activeMisconceptions,
     isStreaming, streamBuffer, lastEval,
     fetchSession, addUserMessage, appendStreamDelta,
-    finalizeStreamedMessage, updateSession, setStreaming,
+    finalizeStreamedMessage, updateSession, setStreaming, deleteSession,
   } = useSessionStore()
 
   const [input, setInput] = useState('')
   const [showHint, setShowHint] = useState(false)
   const [showEndModal, setShowEndModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showNotesModal, setShowNotesModal] = useState(false)
+  const [copiedNotes, setCopiedNotes] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+
   const [wasInitiallyActive, setWasInitiallyActive] = useState(true)
   const [isListening, setIsListening] = useState(false)
   const [voiceEnabled, setVoiceEnabled] = useState(true)
@@ -194,6 +199,19 @@ export default function Chat() {
     }
   }
 
+  const handleDeleteSession = async () => {
+    setIsDeleting(true)
+    await deleteSession(id)
+    setIsDeleting(false)
+    navigate('/sessions')
+  }
+
+  const handleCopyNotes = (text) => {
+    navigator.clipboard.writeText(text)
+    setCopiedNotes(true)
+    setTimeout(() => setCopiedNotes(false), 2000)
+  }
+
   const persona = session?.aiStudentId
   const isComplete = session?.status === 'complete'
   const subject = session?.subject
@@ -237,6 +255,15 @@ export default function Chat() {
             <div className="text-xs text-slate-500 bg-white/[0.03] rounded-lg px-3 py-2 border border-white/[0.05]">
               Topic: <span className="text-slate-300 font-medium">{session.topic}</span>
             </div>
+          )}
+
+          {/* View Lecture Notes Pill button */}
+          {session?.lectureContent && (
+            <button
+              onClick={() => setShowNotesModal(true)}
+              className="mt-2.5 w-full text-xs px-3 py-2 rounded-lg font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/20 hover:bg-teal-500/20 transition-all flex items-center justify-center gap-1.5">
+              <FileText size={13} /> View Full Lecture Notes
+            </button>
           )}
 
           {phase === 2 && (
@@ -300,8 +327,8 @@ export default function Chat() {
           </div>
         </div>
 
-        {/* End / View Report button */}
-        <div className="p-4 border-t border-white/[0.06]">
+        {/* End / View Report / Delete button */}
+        <div className="p-4 border-t border-white/[0.06] space-y-2">
           {isComplete ? (
             <button onClick={() => navigate(`/session/${id}/complete`)}
               className="btn-teal w-full py-2 text-xs flex items-center justify-center gap-2">
@@ -313,6 +340,12 @@ export default function Chat() {
               <Flag size={12} /> End Session
             </button>
           )}
+
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="w-full py-1.5 text-xs text-slate-500 hover:text-red-400 flex items-center justify-center gap-1.5 transition-colors">
+            <Trash2 size={12} /> Delete Session
+          </button>
         </div>
       </aside>
 
@@ -337,6 +370,14 @@ export default function Chat() {
           </div>
 
           <div className="flex items-center gap-3">
+            {session?.lectureContent && (
+              <button
+                onClick={() => setShowNotesModal(true)}
+                className="hidden md:flex text-xs px-3 py-1.5 rounded-lg font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/20 hover:bg-teal-500/20 transition-all items-center gap-1.5">
+                <FileText size={14} /> Full Notes
+              </button>
+            )}
+
             {/* Free Voice Output Toggle */}
             <button
               onClick={() => {
@@ -361,6 +402,13 @@ export default function Chat() {
                 <Award size={14} /> Score Report ({session?.masteryScore || understandingLevel}%)
               </button>
             )}
+
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              title="Delete Session">
+              <Trash2 size={16} />
+            </button>
           </div>
         </div>
 
@@ -535,7 +583,7 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* ── End Session modal ─────────────────────────────────────────────── */}
+      {/* ── End Session Modal ─────────────────────────────────────────────── */}
       {showEndModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="card p-6 max-w-sm w-full animate-fade-up">
@@ -556,6 +604,86 @@ export default function Chat() {
                 className="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all"
                 style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.25)' }}>
                 End Session
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete Session Modal ───────────────────────────────────────────── */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="card p-6 max-w-md w-full animate-fade-up border border-red-500/30">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 font-bold text-lg text-red-400">
+                <Trash2 size={20} /> Delete Session?
+              </div>
+              <button onClick={() => setShowDeleteModal(false)} className="text-slate-500 hover:text-slate-300 p-1">
+                <X size={18} />
+              </button>
+            </div>
+            <p className="text-sm text-slate-300 mb-2">
+              Are you sure you want to delete this session?
+            </p>
+            <p className="text-xs text-slate-400 bg-red-500/10 border border-red-500/20 p-3 rounded-lg mb-6">
+              ⚠️ This will permanently remove the transcript, evaluator metrics, and all associated lecture notes.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowDeleteModal(false)} className="btn-ghost flex-1 py-2.5 text-sm">
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteSession}
+                disabled={isDeleting}
+                className="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30 transition-all flex items-center justify-center gap-2">
+                {isDeleting ? 'Deleting...' : 'Delete Permanently'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Full Lecture Notes Modal ────────────────────────────────────────── */}
+      {showNotesModal && session?.lectureContent && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="card max-w-3xl w-full max-h-[85vh] flex flex-col animate-fade-up border border-teal-500/30 shadow-2xl">
+            <div className="p-5 border-b border-white/10 flex items-center justify-between flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-xl">
+                  📄
+                </div>
+                <div>
+                  <h3 className="font-semibold text-base text-slate-100">
+                    {session.topic || `${session.subject} Lecture Notes`}
+                  </h3>
+                  <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                    <span className="text-teal-400 font-medium">{session.subject}</span>
+                    <span>•</span>
+                    <span>{session.lectureContent.length} characters</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleCopyNotes(session.lectureContent)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 border border-white/10 text-slate-300 hover:text-white flex items-center gap-1.5 transition-all">
+                  {copiedNotes ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  <span>{copiedNotes ? 'Copied!' : 'Copy Text'}</span>
+                </button>
+                <button onClick={() => setShowNotesModal(false)} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/10 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1 bg-slate-950/60 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap selection:bg-teal-500/30">
+              {session.lectureContent}
+            </div>
+
+            <div className="p-4 border-t border-white/10 flex items-center justify-end flex-shrink-0 bg-slate-900/40">
+              <button onClick={() => setShowNotesModal(false)} className="btn-teal px-5 py-2 text-xs font-semibold">
+                Close Notes
               </button>
             </div>
           </div>

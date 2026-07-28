@@ -49,6 +49,20 @@ const useSessionStore = create((set, get) => ({
     }
   },
 
+  deleteSession: async (id) => {
+    try {
+      await api.delete(`/sessions/${id}`)
+      set((s) => ({
+        pastSessions: s.pastSessions.filter((sess) => sess._id !== id),
+        session: s.session?._id === id ? null : s.session,
+      }))
+      return true
+    } catch (err) {
+      console.error('Failed to delete session:', err)
+      return false
+    }
+  },
+
   createSession: async () => {
     const { selectedPersona, topic, selectedMode } = get()
     if (!selectedPersona) return null
@@ -86,6 +100,7 @@ const useSessionStore = create((set, get) => ({
         activeMisconceptions: data.session.activeMisconceptions || [],
         lecturePhase: data.session.phase || 1,
         studentReflection: data.session.studentReflection || null,
+        lectureContent: data.session.lectureContent || '',
       })
       return data.session
     } catch (err) {
@@ -137,7 +152,7 @@ const useSessionStore = create((set, get) => ({
   addLectureText: async (sessionId, content) => {
     try {
       const { data } = await api.post(`/sessions/${sessionId}/lecture/text`, { content })
-      set({ lectureWordCount: data.lectureWordCount })
+      set({ lectureWordCount: data.lectureWordCount, lectureContent: content })
       return true
     } catch (err) {
       console.error('Failed to add lecture text:', err)
