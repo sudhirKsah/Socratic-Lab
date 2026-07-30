@@ -65,40 +65,40 @@ export default function Sessions() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
       <AppNav />
       <main className="max-w-6xl mx-auto pt-24 pb-16 px-4 sm:px-6">
 
         {/* ── Page Header ─────────────────────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold">Sessions & Teaching Materials</h1>
-            <p className="text-slate-400 text-sm mt-1">Revisit completed sessions, continue active dialogue, manage or read your full lecture notes.</p>
+            <h1 className="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">Sessions & Teaching Materials</h1>
+            <p className="text-slate-600 text-sm font-medium mt-1">Revisit completed sessions, continue active dialogue, manage or read your full lecture notes.</p>
           </div>
-          <Link to="/setup" className="btn-primary px-5 py-2.5 text-sm flex items-center gap-2 self-start sm:self-auto">
-            <Plus size={16} /> New Session
+          <Link to="/setup" className="btn-primary px-5 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-2 self-start sm:self-auto">
+            <Plus size={18} /> New Session
           </Link>
         </div>
 
         {/* ── Tabs Navigation ────────────────────────────────────────────── */}
-        <div className="flex items-center gap-2 border-b border-white/10 mb-6">
+        <div className="flex items-center gap-2 border-b border-slate-200 mb-8 pb-3">
           <button
             onClick={() => setActiveTab('sessions')}
-            className={`pb-3 px-4 font-semibold text-sm transition-all border-b-2 flex items-center gap-2 ${
+            className={`py-2.5 px-4 font-bold text-xs sm:text-sm transition-all rounded-xl border flex items-center gap-2 cursor-pointer ${
               activeTab === 'sessions'
-                ? 'border-amber-500 text-amber-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-xs'
+                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
             }`}>
             <BookOpen size={16} /> All Sessions ({pastSessions.length})
           </button>
           <button
             onClick={() => setActiveTab('materials')}
-            className={`pb-3 px-4 font-semibold text-sm transition-all border-b-2 flex items-center gap-2 ${
+            className={`py-2.5 px-4 font-bold text-xs sm:text-sm transition-all rounded-xl border flex items-center gap-2 cursor-pointer ${
               activeTab === 'materials'
-                ? 'border-amber-500 text-amber-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-xs'
+                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
             }`}>
-            <FileText size={16} /> Teaching Materials & Notes ({lectureSessions.length})
+            <FileText size={16} /> Teaching Materials ({lectureSessions.length})
           </button>
         </div>
 
@@ -109,33 +109,33 @@ export default function Sessions() {
             <div className="card p-4 mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
               {/* Search */}
               <div className="relative flex-1 w-full">
-                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by topic, subject, or student name..."
-                  className="input-field w-full pl-10 pr-4 py-2 text-sm"
+                  className="input-field w-full pl-10 pr-4 py-2.5 text-sm font-medium"
                 />
               </div>
 
               {/* Subject & Status filter */}
               <div className="flex items-center gap-2 w-full sm:w-auto">
-                <span className="text-xs text-slate-400 flex-shrink-0">Subject:</span>
+                <span className="text-xs font-bold uppercase text-slate-500 flex-shrink-0">Subject:</span>
                 <select
                   value={selectedSubject}
                   onChange={(e) => setSelectedSubject(e.target.value)}
-                  className="input-field px-3 py-2 text-xs bg-slate-800 flex-1 sm:w-36">
+                  className="input-field px-3 py-2 text-xs font-bold bg-white flex-1 sm:w-36">
                   {SUBJECTS.map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
 
-                <span className="text-xs text-slate-400 flex-shrink-0 ml-2">Status:</span>
+                <span className="text-xs font-bold uppercase text-slate-500 flex-shrink-0 ml-2">Status:</span>
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="input-field px-3 py-2 text-xs bg-slate-800 flex-1 sm:w-32">
+                  className="input-field px-3 py-2 text-xs font-bold bg-white flex-1 sm:w-32">
                   {STATUSES.map((st) => (
                     <option key={st} value={st}>{st === 'All' ? 'All Status' : st}</option>
                   ))}
@@ -147,8 +147,8 @@ export default function Sessions() {
             {filteredSessions.length === 0 ? (
               <div className="card p-12 text-center">
                 <div className="text-4xl mb-3">🔍</div>
-                <h3 className="font-semibold text-base text-slate-300">No sessions found</h3>
-                <p className="text-slate-400 text-sm mt-1">Try clearing filters or start a new session.</p>
+                <h3 className="font-bold text-lg text-slate-900">No sessions found</h3>
+                <p className="text-slate-500 text-sm font-medium mt-1">Try clearing filters or start a new session.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -172,18 +172,18 @@ export default function Sessions() {
             {Object.keys(materialsBySubject).length === 0 ? (
               <div className="card p-12 text-center">
                 <div className="text-4xl mb-3">📄</div>
-                <h3 className="font-semibold text-base text-slate-300">No lecture notes saved yet</h3>
-                <p className="text-slate-400 text-sm mt-1">
+                <h3 className="font-bold text-lg text-slate-900">No lecture notes saved yet</h3>
+                <p className="text-slate-500 text-sm font-medium mt-1">
                   Start a **Lecture Mode** session and write or upload PDF/DOCX content to build your teaching materials repository.
                 </p>
-                <Link to="/setup" className="btn-primary px-5 py-2.5 text-sm inline-flex mt-4">
+                <Link to="/setup" className="btn-primary px-5 py-2.5 text-xs font-bold inline-flex mt-4">
                   Start Lecture Session
                 </Link>
               </div>
             ) : (
               Object.entries(materialsBySubject).map(([subj, sessions]) => (
                 <div key={subj} className="space-y-4">
-                  <h3 className="font-display text-lg font-bold flex items-center gap-2 text-slate-200">
+                  <h3 className="font-display text-xl font-extrabold flex items-center gap-2 text-slate-900 uppercase tracking-wider">
                     <span>{getSubjectIcon(subj)}</span> {subj} Notes ({sessions.length})
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -206,34 +206,34 @@ export default function Sessions() {
 
       {/* ── DELETE CONFIRMATION MODAL ────────────────────────────────────── */}
       {deleteModalSession && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="card p-6 max-w-md w-full animate-fade-up border border-red-500/30">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="card p-7 max-w-md w-full animate-fade-up shadow-xl border-rose-200">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2 font-bold text-lg text-red-400">
-                <Trash2 size={20} /> Delete Session?
+              <div className="flex items-center gap-2 font-bold text-xl text-rose-600 uppercase">
+                <Trash2 size={22} /> Delete Session?
               </div>
               <button
                 onClick={() => setDeleteModalSession(null)}
-                className="text-slate-500 hover:text-slate-300 p-1">
-                <X size={18} />
+                className="text-slate-400 hover:text-slate-900 p-1">
+                <X size={20} />
               </button>
             </div>
-            <p className="text-sm text-slate-300 mb-2">
-              Are you sure you want to delete session for <strong className="text-white">"{deleteModalSession.topic || deleteModalSession.subject}"</strong>?
+            <p className="text-sm font-medium text-slate-700 mb-2">
+              Are you sure you want to delete session for <strong className="text-slate-900">"{deleteModalSession.topic || deleteModalSession.subject}"</strong>?
             </p>
-            <p className="text-xs text-slate-400 bg-red-500/10 border border-red-500/20 p-3 rounded-lg mb-6">
+            <p className="text-xs font-medium text-rose-900 bg-rose-50 border border-rose-200 p-3.5 rounded-xl mb-6">
               ⚠️ This will permanently delete the chat history, mastery scores, and all uploaded lecture notes. This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteModalSession(null)}
-                className="btn-ghost flex-1 py-2.5 text-sm">
+                className="btn-ghost flex-1 py-2.5 text-xs font-bold uppercase">
                 Cancel
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={isDeleting}
-                className="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30 transition-all flex items-center justify-center gap-2">
+                className="btn-danger flex-1 py-2.5 text-xs font-bold uppercase">
                 {isDeleting ? 'Deleting...' : 'Delete Permanently'}
               </button>
             </div>
@@ -243,20 +243,20 @@ export default function Sessions() {
 
       {/* ── VIEW FULL LECTURE NOTES MODAL ────────────────────────────────── */}
       {viewNotesSession && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-6">
-          <div className="card max-w-3xl w-full max-h-[85vh] flex flex-col animate-fade-up border border-teal-500/30 shadow-2xl">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="card max-w-3xl w-full max-h-[85vh] flex flex-col animate-fade-up shadow-2xl">
             {/* Modal Header */}
-            <div className="p-5 border-b border-white/10 flex items-center justify-between flex-shrink-0">
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between flex-shrink-0 bg-white rounded-t-2xl">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-xl">
+                <div className="w-10 h-10 rounded-xl bg-teal-100 border border-teal-200 flex items-center justify-center text-2xl font-bold">
                   {getSubjectIcon(viewNotesSession.subject)}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-base text-slate-100 line-clamp-1">
+                  <h3 className="font-bold text-base text-slate-900 line-clamp-1">
                     {viewNotesSession.topic || `${viewNotesSession.subject} Lecture Notes`}
                   </h3>
-                  <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-                    <span className="text-teal-400 font-medium">{viewNotesSession.subject}</span>
+                  <div className="flex items-center gap-2 text-xs font-medium text-slate-500 mt-0.5">
+                    <span className="text-amber-600 font-bold">{viewNotesSession.subject}</span>
                     <span>•</span>
                     <span>{viewNotesSession.lectureContent?.length || 0} characters</span>
                     <span>•</span>
@@ -268,27 +268,27 @@ export default function Sessions() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleCopyNotes(viewNotesSession.lectureContent)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 border border-white/10 text-slate-300 hover:text-white flex items-center gap-1.5 transition-all">
-                  {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase bg-amber-400 text-slate-950 shadow-xs hover:bg-amber-300 flex items-center gap-1.5 transition-all cursor-pointer">
+                  {copied ? <Check size={16} className="text-slate-950 stroke-[2.5]" /> : <Copy size={16} />}
                   <span>{copied ? 'Copied!' : 'Copy Text'}</span>
                 </button>
 
                 <button
                   onClick={() => setViewNotesSession(null)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/10 transition-colors">
-                  <X size={20} />
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 transition-colors">
+                  <X size={22} />
                 </button>
               </div>
             </div>
 
             {/* Modal Body — Full Notes Content */}
-            <div className="p-6 overflow-y-auto flex-1 space-y-4 bg-slate-950/60 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap selection:bg-teal-500/30">
+            <div className="p-6 overflow-y-auto flex-1 space-y-4 bg-[#F8FAFC] font-mono text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap selection:bg-amber-200">
               {viewNotesSession.lectureContent}
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-white/10 flex items-center justify-between flex-shrink-0 bg-slate-900/40">
-              <span className="text-xs text-slate-400">
+            <div className="p-4 border-t border-slate-200 flex items-center justify-between flex-shrink-0 bg-white rounded-b-2xl">
+              <span className="text-xs font-medium text-slate-500">
                 Uploaded/Written for Lecture Session with <strong>{viewNotesSession.aiStudentId?.name || 'AI Student'}</strong>
               </span>
               <button
@@ -297,7 +297,7 @@ export default function Sessions() {
                   setViewNotesSession(null)
                   navigate(`/session/${s._id}`)
                 }}
-                className="btn-teal px-4 py-2 text-xs font-semibold flex items-center gap-1.5">
+                className="btn-teal px-5 py-2.5 text-xs font-bold uppercase flex items-center gap-1.5">
                 <span>Go to Session Chat →</span>
               </button>
             </div>
@@ -334,38 +334,38 @@ function SessionCard({ session, navigate, onDeleteRequest, onViewNotesRequest })
   return (
     <div
       onClick={handleCardClick}
-      className="card p-5 flex flex-col justify-between hover:border-amber-500/40 cursor-pointer transition-all hover:shadow-lg hover:shadow-amber-500/5 group relative">
+      className="card p-5 flex flex-col justify-between hover:border-amber-400 hover:shadow-md cursor-pointer transition-all group relative">
       <div>
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform">
+            <div className="w-11 h-11 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center text-2xl flex-shrink-0 font-bold">
               {persona?.avatar || '🤖'}
             </div>
             <div>
-              <div className="font-semibold text-sm flex items-center gap-2">
-                <span className="group-hover:text-amber-400 transition-colors">{persona?.name || 'AI Student'}</span>
+              <div className="font-bold text-base flex items-center gap-2">
+                <span className="text-slate-900 group-hover:text-amber-600 transition-colors">{persona?.name || 'AI Student'}</span>
                 {persona?.gradeLevel && (
-                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20 inline-flex items-center gap-1">
-                    <GraduationCap size={10} /> {persona.gradeLevel}
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200 inline-flex items-center gap-1">
+                    <GraduationCap size={11} /> {persona.gradeLevel}
                   </span>
                 )}
               </div>
-              <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-2">
-                <Clock size={11} /> {new Date(session.createdAt).toLocaleDateString()}
+              <div className="text-xs font-medium text-slate-500 mt-0.5 flex items-center gap-2">
+                <Clock size={12} /> {new Date(session.createdAt).toLocaleDateString()}
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <span
-              className={`text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 ${
+              className={`text-xs font-bold uppercase px-2.5 py-1 rounded-full border flex items-center gap-1 ${
                 isComplete
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
                   : isActive
-                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                  : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                  ? 'bg-amber-100 text-amber-800 border-amber-200'
+                  : 'bg-rose-100 text-rose-800 border-rose-200'
               }`}>
-              {isComplete ? <CheckCircle2 size={11} /> : isActive ? <PlayCircle size={11} /> : null}
+              {isComplete ? <CheckCircle2 size={12} /> : isActive ? <PlayCircle size={12} /> : null}
               {isComplete ? 'Completed' : isActive ? 'Active' : 'Abandoned'}
             </span>
 
@@ -375,7 +375,7 @@ function SessionCard({ session, navigate, onDeleteRequest, onViewNotesRequest })
                 e.stopPropagation()
                 onDeleteRequest(session)
               }}
-              className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
+              className="p-1.5 rounded-xl bg-white text-slate-400 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 transition-all cursor-pointer"
               title="Delete Session">
               <Trash2 size={14} />
             </button>
@@ -383,23 +383,23 @@ function SessionCard({ session, navigate, onDeleteRequest, onViewNotesRequest })
         </div>
 
         <div className="mb-3">
-          <div className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
+          <div className="text-xs font-bold uppercase text-amber-600 tracking-wider mb-1">
             {session.subject} {session.mode === 'lecture' ? '• 📖 Lecture Mode' : '• ⚡ Socratic Mode'}
           </div>
-          <h4 className="font-semibold text-base text-slate-100 line-clamp-1 group-hover:text-white transition-colors">
+          <h4 className="font-bold text-lg text-slate-900 line-clamp-1 group-hover:text-amber-700 transition-colors">
             {session.topic || `${session.subject} Session`}
           </h4>
         </div>
       </div>
 
-      <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between">
+      <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between">
         <div>
           {session.masteryScore != null ? (
-            <div className="text-sm font-bold text-amber-400 flex items-center gap-1">
-              <Award size={14} /> {session.masteryScore}% Mastery
+            <div className="text-sm font-bold text-slate-900 flex items-center gap-1">
+              <Award size={16} className="text-amber-500" /> {session.masteryScore}% Mastery
             </div>
           ) : (
-            <div className="text-xs text-slate-500">In Progress</div>
+            <div className="text-xs font-bold text-slate-500 uppercase">In Progress</div>
           )}
         </div>
 
@@ -410,19 +410,19 @@ function SessionCard({ session, navigate, onDeleteRequest, onViewNotesRequest })
                 e.stopPropagation()
                 onViewNotesRequest(session)
               }}
-              className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/20 hover:bg-teal-500/20 transition-all flex items-center gap-1">
-              <FileCode size={12} /> Notes
+              className="px-3 py-1.5 rounded-xl text-xs font-bold uppercase bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition-all flex items-center gap-1 cursor-pointer">
+              <FileCode size={13} /> Notes
             </button>
           )}
 
           <button
             onClick={handleScoreButtonClick}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase flex items-center gap-1.5 transition-all cursor-pointer ${
               isComplete
-                ? 'bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 border border-amber-500/30'
+                ? 'bg-amber-400 text-slate-950 shadow-xs hover:bg-amber-300'
                 : 'btn-primary'
             }`}>
-            {isComplete ? 'Review Score 🏆' : isActive ? 'Continue Teaching →' : 'View Session'}
+            {isComplete ? 'Review Score 🏆' : isActive ? 'Continue →' : 'View Session'}
           </button>
         </div>
       </div>
@@ -436,42 +436,42 @@ function MaterialCard({ session, navigate, onDeleteRequest, onViewNotesRequest }
     : 'No excerpt available.'
 
   return (
-    <div className="card p-5 space-y-3 hover:border-teal-500/40 transition-all group relative">
+    <div className="card p-5 rounded-2xl space-y-3.5 hover:border-teal-300 hover:shadow-md transition-all group relative">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-teal-400 px-2 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/20">
+        <span className="text-xs font-bold uppercase px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
           {session.subject} Note
         </span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500">
+          <span className="text-xs font-medium text-slate-500">
             {new Date(session.createdAt).toLocaleDateString()}
           </span>
           <button
             onClick={() => onDeleteRequest(session)}
-            className="p-1 rounded text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            className="p-1 rounded-xl bg-white text-slate-400 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
             title="Delete Session & Notes">
-            <Trash2 size={13} />
+            <Trash2 size={14} />
           </button>
         </div>
       </div>
 
-      <h4 className="font-semibold text-base text-slate-100 group-hover:text-teal-300 transition-colors">
+      <h4 className="font-bold text-lg text-slate-900 group-hover:text-teal-700 transition-colors">
         {session.topic || `${session.subject} Lecture Notes`}
       </h4>
 
-      <p className="text-xs text-slate-400 leading-relaxed line-clamp-3 bg-slate-900/60 p-3 rounded-lg border border-white/5 font-mono select-none">
+      <p className="text-xs font-medium text-slate-700 leading-relaxed line-clamp-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200 font-mono select-none">
         {excerpt}
       </p>
 
-      <div className="flex items-center justify-between pt-2 border-t border-white/5">
+      <div className="flex items-center justify-between pt-2.5 border-t border-slate-100">
         <button
           onClick={() => onViewNotesRequest(session)}
-          className="text-xs text-teal-400 font-semibold flex items-center gap-1.5 hover:underline bg-teal-500/10 px-3 py-1.5 rounded-lg border border-teal-500/20">
-          <FileText size={13} /> View Full Notes
+          className="text-xs font-bold uppercase text-teal-800 bg-teal-50 px-3 py-1.5 rounded-xl border border-teal-200 hover:bg-teal-100 transition-all flex items-center gap-1.5 cursor-pointer">
+          <FileText size={14} /> View Full Notes
         </button>
 
         <button
           onClick={() => navigate(`/session/${session._id}`)}
-          className="text-xs text-amber-400 font-semibold flex items-center gap-1 hover:underline">
+          className="text-xs font-bold uppercase text-amber-600 hover:underline">
           Open Session →
         </button>
       </div>

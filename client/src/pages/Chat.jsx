@@ -220,74 +220,68 @@ export default function Chat() {
   const currentTargetMisconception = activeMisconceptions.find((m) => !m.corrected)
 
   return (
-    <div className="flex h-screen" style={{ background: '#0F172A' }}>
+    <div className="flex h-screen bg-[#F8FAFC] text-slate-900 font-sans">
 
       {/* ── Left sidebar ─────────────────────────────────────────────────── */}
-      <aside className="w-72 flex-shrink-0 hidden lg:flex flex-col border-r border-white/[0.06]"
-        style={{ background: '#111827' }}>
+      <aside className="w-80 flex-shrink-0 hidden lg:flex flex-col border-r border-slate-200 bg-white">
 
         {/* Persona header */}
-        <div className="p-5 border-b border-white/[0.06]">
+        <div className="p-5 border-b border-slate-100">
           <div className="flex items-center gap-2 mb-3">
-            <Link to="/sessions" className="text-xs text-slate-500 hover:text-slate-300 flex items-center gap-1">
-              <ArrowLeft size={12} /> Back to Sessions
+            <Link to="/sessions" className="text-xs font-bold uppercase text-amber-600 hover:underline flex items-center gap-1">
+              <ArrowLeft size={14} /> Back to Sessions
             </Link>
           </div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
-              style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.2)' }}>
+          <div className="flex items-center gap-3.5 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center text-2xl font-bold flex-shrink-0">
               {persona?.avatar || '🤖'}
             </div>
             <div>
-              <div className="font-semibold text-sm">{persona?.name || 'Student'}</div>
-              <div className="text-xs text-slate-500">{persona?.gradeLevel || subject} Student</div>
+              <div className="font-bold text-base text-slate-900">{persona?.name || 'Student'}</div>
+              <div className="text-xs text-slate-500 font-medium">{persona?.gradeLevel || subject} Student</div>
               <div className="flex items-center gap-1 mt-1">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="w-2 h-2 rounded-sm"
-                    style={{ background: i < (persona?.personalityIntensity || 3) ? '#F59E0B' : 'rgba(255,255,255,0.07)' }} />
+                  <div key={i} className={`w-2.5 h-2.5 rounded-sm ${i < (persona?.personalityIntensity || 3) ? 'bg-amber-400' : 'bg-slate-200'}`} />
                 ))}
-                <span className="text-xs text-slate-600 ml-1">stubborn</span>
+                <span className="text-[10px] font-bold uppercase text-slate-500 ml-1">stubborn</span>
               </div>
             </div>
           </div>
 
           {session?.topic && (
-            <div className="text-xs text-slate-500 bg-white/[0.03] rounded-lg px-3 py-2 border border-white/[0.05]">
-              Topic: <span className="text-slate-300 font-medium">{session.topic}</span>
+            <div className="text-xs font-medium text-slate-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+              Topic: <span className="text-amber-700 font-bold">{session.topic}</span>
             </div>
           )}
 
-          {/* View Lecture Notes Pill button */}
+          {/* View Lecture Notes Button */}
           {session?.lectureContent && (
             <button
               onClick={() => setShowNotesModal(true)}
-              className="mt-2.5 w-full text-xs px-3 py-2 rounded-lg font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/20 hover:bg-teal-500/20 transition-all flex items-center justify-center gap-1.5">
-              <FileText size={13} /> View Full Lecture Notes
+              className="mt-3 w-full text-xs px-3 py-2 rounded-xl font-bold uppercase bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+              <FileText size={15} /> View Full Lecture Notes
             </button>
           )}
 
           {phase === 2 && (
-            <div className="mt-2 text-xs px-2 py-1 rounded-full text-center font-semibold"
-              style={{ background: 'rgba(20,184,166,0.1)', color: '#14B8A6', border: '1px solid rgba(20,184,166,0.2)' }}>
+            <div className="mt-2.5 text-xs px-2.5 py-1 rounded-full text-center font-bold uppercase bg-teal-100 text-teal-800 border border-teal-200">
               Phase 2 · Q&A Mode
             </div>
           )}
         </div>
 
         {/* Understanding meter */}
-        <div className="p-5 border-b border-white/[0.06]">
+        <div className="p-5 border-b border-slate-100">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Understanding</span>
-            <span className="text-xl font-bold font-display" style={{
-              color: understandingLevel >= 70 ? '#10B981' : understandingLevel >= 40 ? '#F59E0B' : '#94A3B8'
-            }}>
-              {understandingLevel}<span className="text-sm font-normal text-slate-500">/100</span>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Understanding</span>
+            <span className="text-xl font-black font-display text-slate-900">
+              {understandingLevel}<span className="text-xs font-medium text-slate-400">/100</span>
             </span>
           </div>
           <div className="meter-track">
-            <div className="meter-fill" style={{ width: `${understandingLevel}%` }} />
+            <div className="meter-fill" style={{ width: `${understandingLevel}%`, background: '#14B8A6' }} />
           </div>
-          <div className="flex justify-between text-xs text-slate-600 mt-1.5">
+          <div className="flex justify-between text-[11px] font-bold uppercase text-slate-400 mt-2">
             <span>Confused</span>
             <span>Mastered ✦</span>
           </div>
@@ -296,31 +290,31 @@ export default function Chat() {
         {/* Misconceptions */}
         <div className="p-5 flex-1 overflow-y-auto">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Misconceptions</span>
-            <span className="text-xs text-slate-600">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Misconceptions</span>
+            <span className="text-xs font-bold text-amber-600">
               {activeMisconceptions.filter(m => m.corrected).length}/{activeMisconceptions.length} fixed
             </span>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {activeMisconceptions.map((m, i) => (
               <div key={i}
-                className={`misconception-item transition-all duration-500 ${m.corrected ? 'corrected' : 'remaining'}`}>
+                className={`misconception-item transition-all duration-300 ${m.corrected ? 'corrected' : 'remaining'}`}>
                 <div className="flex items-start gap-2">
                   {m.corrected
-                    ? <CheckCircle2 size={13} className="flex-shrink-0 mt-0.5" style={{ color: '#10B981' }} />
-                    : <XCircle size={13} className="flex-shrink-0 mt-0.5" style={{ color: '#EF4444' }} />}
+                    ? <CheckCircle2 size={15} className="flex-shrink-0 mt-0.5 text-emerald-600" />
+                    : <XCircle size={15} className="flex-shrink-0 mt-0.5 text-rose-500" />}
                   <div>
-                    <div className="font-medium text-xs text-slate-300">{m.concept}</div>
-                    <div className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">{m.wrongBelief}</div>
+                    <div className="font-bold text-xs uppercase">{m.concept}</div>
+                    <div className="text-[11px] font-medium mt-0.5 leading-relaxed">{m.wrongBelief}</div>
                     {m.corrected && (
-                      <div className="text-xs font-semibold mt-1" style={{ color: '#10B981' }}>Corrected ✓</div>
+                      <div className="text-[10px] font-bold uppercase mt-1 text-emerald-700">Corrected ✓</div>
                     )}
                   </div>
                 </div>
               </div>
             ))}
             {activeMisconceptions.length === 0 && (
-              <div className="text-xs text-slate-600 text-center py-4">
+              <div className="text-xs font-medium text-slate-400 text-center py-4">
                 Misconceptions will appear as you teach
               </div>
             )}
@@ -328,23 +322,23 @@ export default function Chat() {
         </div>
 
         {/* End / View Report / Delete button */}
-        <div className="p-4 border-t border-white/[0.06] space-y-2">
+        <div className="p-4 border-t border-slate-200 space-y-2 bg-slate-50">
           {isComplete ? (
             <button onClick={() => navigate(`/session/${id}/complete`)}
-              className="btn-teal w-full py-2 text-xs flex items-center justify-center gap-2">
-              <Award size={13} /> View Mastery Score Report
+              className="btn-teal w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2 uppercase">
+              <Award size={15} /> View Score Report
             </button>
           ) : (
             <button onClick={() => setShowEndModal(true)}
-              className="btn-ghost w-full py-2 text-xs flex items-center justify-center gap-2 text-red-400 border-red-500/20 hover:bg-red-500/5">
-              <Flag size={12} /> End Session
+              className="bg-rose-500 text-white font-bold rounded-xl w-full py-2.5 text-xs flex items-center justify-center gap-2 uppercase hover:bg-rose-600 transition-all cursor-pointer shadow-xs">
+              <Flag size={14} /> End Session
             </button>
           )}
 
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="w-full py-1.5 text-xs text-slate-500 hover:text-red-400 flex items-center justify-center gap-1.5 transition-colors">
-            <Trash2 size={12} /> Delete Session
+            className="w-full py-2 text-xs font-bold uppercase text-slate-500 hover:text-rose-600 flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+            <Trash2 size={14} /> Delete Session
           </button>
         </div>
       </aside>
@@ -353,18 +347,19 @@ export default function Chat() {
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* Top bar */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06] flex-shrink-0"
-          style={{ background: 'rgba(15,23,42,0.8)', backdropFilter: 'blur(12px)' }}>
+        <div className="flex items-center justify-between px-6 py-3.5 border-b border-slate-200/80 bg-white flex-shrink-0 shadow-xs">
           <div className="flex items-center gap-3">
-            <Link to="/sessions" className="text-slate-400 hover:text-slate-200 lg:hidden pr-2 border-r border-white/10">
-              <ArrowLeft size={16} />
+            <Link to="/sessions" className="text-slate-500 hover:text-slate-900 lg:hidden pr-2 border-r border-slate-200">
+              <ArrowLeft size={18} />
             </Link>
-            <div className="text-xl">{persona?.avatar || '🤖'}</div>
+            <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center text-xl font-bold">
+              {persona?.avatar || '🤖'}
+            </div>
             <div>
-              <div className="font-semibold text-sm">{persona?.name}</div>
+              <div className="font-bold text-base text-slate-900">{persona?.name}</div>
               <div className="flex items-center gap-1.5">
-                <div className={`w-1.5 h-1.5 rounded-full ${isComplete ? 'bg-emerald-400' : isStreaming ? 'animate-pulse bg-amber-400' : 'bg-green-400'}`} />
-                <span className="text-xs text-slate-500">{isComplete ? 'Session Completed' : isStreaming ? 'Thinking...' : 'Online'}</span>
+                <div className={`w-2 h-2 rounded-full ${isComplete ? 'bg-emerald-500' : isStreaming ? 'animate-pulse bg-amber-400' : 'bg-green-500'}`} />
+                <span className="text-xs font-medium text-slate-500">{isComplete ? 'Session Completed' : isStreaming ? 'Thinking...' : 'Online'}</span>
               </div>
             </div>
           </div>
@@ -373,39 +368,39 @@ export default function Chat() {
             {session?.lectureContent && (
               <button
                 onClick={() => setShowNotesModal(true)}
-                className="hidden md:flex text-xs px-3 py-1.5 rounded-lg font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/20 hover:bg-teal-500/20 transition-all items-center gap-1.5">
-                <FileText size={14} /> Full Notes
+                className="hidden md:flex text-xs px-3 py-1.5 rounded-xl font-bold uppercase bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition-all items-center gap-1.5 cursor-pointer">
+                <FileText size={15} /> Full Notes
               </button>
             )}
 
-            {/* Free Voice Output Toggle */}
+            {/* Speech Output Toggle */}
             <button
               onClick={() => {
                 const next = !voiceEnabled
                 setVoiceEnabled(next)
                 if (!next) window.speechSynthesis?.cancel()
               }}
-              className={`p-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase flex items-center gap-1.5 transition-all border cursor-pointer ${
                 voiceEnabled
-                  ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
-                  : 'bg-white/5 text-slate-500 hover:text-slate-300'
+                  ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-xs font-extrabold'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
               }`}
               title={voiceEnabled ? 'AI Auto-Voice Enabled (Click to Mute)' : 'AI Auto-Voice Muted (Click to Enable)'}>
-              {voiceEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+              {voiceEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
               <span className="hidden sm:inline">{voiceEnabled ? 'Auto-Voice ON' : 'Auto-Voice OFF'}</span>
             </button>
 
             {isComplete && (
               <button
                 onClick={() => navigate(`/session/${id}/complete`)}
-                className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1.5">
-                <Award size={14} /> Score Report ({session?.masteryScore || understandingLevel}%)
+                className="btn-primary text-xs px-3.5 py-1.5 font-bold uppercase flex items-center gap-1.5">
+                <Award size={15} /> Score ({session?.masteryScore || understandingLevel}%)
               </button>
             )}
 
             <button
               onClick={() => setShowDeleteModal(true)}
-              className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              className="p-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
               title="Delete Session">
               <Trash2 size={16} />
             </button>
@@ -414,21 +409,21 @@ export default function Chat() {
 
         {/* Completed session notification banner */}
         {isComplete && (
-          <div className="bg-emerald-500/10 border-b border-emerald-500/20 px-4 py-2.5 flex items-center justify-between text-xs text-emerald-300">
+          <div className="bg-amber-100 border-b border-amber-200 px-4 py-2.5 flex items-center justify-between text-xs font-bold text-amber-900 shadow-xs">
             <div className="flex items-center gap-2">
-              <CheckCircle2 size={15} className="text-emerald-400" />
+              <CheckCircle2 size={16} className="text-amber-700" />
               <span>This session is completed with a <strong>{session?.masteryScore || understandingLevel}% Mastery Score</strong>. You are reviewing past dialogue in read-only mode.</span>
             </div>
             <button
               onClick={() => navigate(`/session/${id}/complete`)}
-              className="font-semibold text-emerald-400 hover:underline flex items-center gap-1">
-              Score Card <ChevronRight size={12} />
+              className="font-bold uppercase bg-amber-400 text-slate-950 px-3 py-1 rounded-xl hover:bg-amber-300 flex items-center gap-1 cursor-pointer">
+              Score Card <ChevronRight size={14} />
             </button>
           </div>
         )}
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-1">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-3">
           {messages.map((msg, i) => {
             const msgKey = msg._id || i
             const isSpeaking = speakingMsgKey === msgKey
@@ -446,18 +441,17 @@ export default function Chat() {
           {/* Streaming bubble */}
           {isStreaming && (
             <div className="flex gap-3 items-end animate-fade-up">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base flex-shrink-0 mb-0.5"
-                style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.15)' }}>
+              <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center text-lg font-bold flex-shrink-0 mb-0.5">
                 {persona?.avatar || '🤖'}
               </div>
               <div className="bubble-ai px-4 py-3 max-w-lg">
                 {streamBuffer ? (
-                  <p className="text-sm leading-relaxed">{streamBuffer}<span className="inline-block w-1 h-4 bg-amber-400 animate-pulse ml-0.5 align-middle" /></p>
+                  <p className="text-sm leading-relaxed">{streamBuffer}<span className="inline-block w-2 h-4 bg-amber-400 animate-pulse ml-0.5 align-middle" /></p>
                 ) : (
-                  <div className="flex items-center gap-1.5 py-0.5">
-                    <div className="typing-dot" />
-                    <div className="typing-dot" />
-                    <div className="typing-dot" />
+                  <div className="flex items-center gap-2 py-1">
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-bounce" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-teal-400 animate-bounce [animation-delay:0.2s]" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-purple-400 animate-bounce [animation-delay:0.4s]" />
                   </div>
                 )}
               </div>
@@ -470,53 +464,50 @@ export default function Chat() {
         {/* Live eval feedback strip */}
         {lastEval && !isStreaming && !isComplete && (
           <div className="mx-4 sm:mx-6 mb-3 animate-fade-up">
-            <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs"
-              style={{
-                background: lastEval.delta > 0 ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
-                border: `1px solid ${lastEval.delta > 0 ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`,
-              }}>
-              <span className="font-bold text-sm" style={{ color: lastEval.delta > 0 ? '#10B981' : '#EF4444' }}>
+            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold bg-white border border-slate-200 shadow-xs">
+              <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
+                lastEval.delta > 0 ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-rose-100 text-rose-800 border-rose-200'
+              }`}>
                 {lastEval.delta > 0 ? `+${lastEval.delta}` : lastEval.delta} pts
               </span>
-              <span className="text-slate-400 flex-1">{lastEval.reasoning}</span>
-              <span className="text-slate-300 font-medium hidden sm:block">{lastEval.encouragement}</span>
+              <span className="text-slate-800 flex-1 font-medium">{lastEval.reasoning}</span>
+              <span className="text-amber-600 font-bold uppercase hidden sm:block">{lastEval.encouragement}</span>
             </div>
           </div>
         )}
 
         {/* Dynamic Teaching Hint panel */}
         {showHint && !isComplete && (
-          <div className="mx-4 sm:mx-6 mb-3 p-4 rounded-xl text-xs animate-fade-up"
-            style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}>
+          <div className="mx-4 sm:mx-6 mb-3 p-4 rounded-2xl text-xs animate-fade-up bg-amber-50 text-slate-900 border border-amber-200 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2 font-semibold text-amber-400 text-sm">
-                <Lightbulb size={15} /> Dynamic Teaching Strategy
+              <div className="flex items-center gap-2 font-bold text-sm uppercase text-amber-900">
+                <Lightbulb size={18} className="text-amber-500" /> Dynamic Teaching Strategy
               </div>
               <button
                 onClick={() => setShowHint(false)}
-                className="text-slate-500 hover:text-slate-300 p-0.5">
-                <X size={14} />
+                className="text-slate-400 hover:text-slate-900 p-1 rounded-lg transition-colors cursor-pointer">
+                <X size={16} />
               </button>
             </div>
 
             {currentTargetMisconception ? (
-              <div className="space-y-1.5 text-slate-300">
-                <div className="flex items-center gap-1.5 font-medium text-amber-300">
-                  <Target size={13} /> Focus Concept: <span>"{currentTargetMisconception.concept}"</span>
+              <div className="space-y-2 font-medium">
+                <div className="flex items-center gap-1.5 font-bold uppercase text-amber-900">
+                  <Target size={15} /> Focus Concept: <span>"{currentTargetMisconception.concept}"</span>
                 </div>
-                <p className="text-slate-400 leading-relaxed">
+                <p className="text-slate-700 leading-relaxed">
                   <strong>Student's misconception:</strong> "{currentTargetMisconception.wrongBelief}"
                 </p>
-                <div className="text-slate-300 bg-white/5 p-2.5 rounded-lg border border-white/5 mt-2">
+                <div className="text-slate-900 bg-white p-3 rounded-xl border border-amber-200 mt-2 font-medium">
                   💡 <strong>Suggested approach:</strong> {currentTargetMisconception.hint || `Use a real-world example or step-by-step counter-example to show why this assumption fails.`}
                 </div>
               </div>
             ) : (
-              <div className="space-y-1 text-slate-300">
-                <div className="flex items-center gap-1.5 font-medium text-emerald-400">
-                  <Sparkles size={13} /> All initial misconceptions resolved!
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-amber-900 uppercase">
+                  <Sparkles size={16} /> All initial misconceptions resolved!
                 </div>
-                <p className="text-slate-400 leading-relaxed">
+                <p className="text-slate-700 leading-relaxed font-medium">
                   Ask <strong>{persona?.name}</strong> to summarize the main concept in their own words or ask if they have any remaining doubts.
                 </p>
               </div>
@@ -525,26 +516,27 @@ export default function Chat() {
         )}
 
         {/* Input area */}
-        <div className="flex-shrink-0 px-4 sm:px-6 py-4 border-t border-white/[0.06]"
-          style={{ background: 'rgba(15,23,42,0.9)' }}>
-          <div className="flex gap-2 items-end">
+        <div className="flex-shrink-0 px-4 sm:px-6 py-4 border-t border-slate-200 bg-white">
+          <div className="flex gap-3 items-end">
             {!isComplete && (
               <>
                 <button onClick={() => setShowHint(!showHint)}
-                  className={`flex-shrink-0 p-2.5 rounded-xl transition-all ${showHint ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'btn-ghost'}`}
+                  className={`flex-shrink-0 p-3 rounded-xl transition-all border font-bold cursor-pointer ${
+                    showHint ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-xs' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
                   title="Teaching hint">
-                  <Lightbulb size={16} />
+                  <Lightbulb size={18} />
                 </button>
 
                 {/* Free Speech-to-Text Mic Button */}
                 <button onClick={toggleListening}
-                  className={`flex-shrink-0 p-2.5 rounded-xl transition-all ${
+                  className={`flex-shrink-0 p-3 rounded-xl transition-all border font-bold cursor-pointer ${
                     isListening
-                      ? 'bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse'
-                      : 'btn-ghost text-slate-400 hover:text-slate-200'
+                      ? 'bg-rose-500 text-white border-rose-600 animate-pulse'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                   }`}
                   title={isListening ? 'Stop Listening' : 'Speak to AI Student (Free Mic)'}>
-                  {isListening ? <MicOff size={16} /> : <Mic size={16} />}
+                  {isListening ? <MicOff size={18} /> : <Mic size={18} />}
                 </button>
               </>
             )}
@@ -558,7 +550,7 @@ export default function Chat() {
                 disabled={isStreaming || isComplete}
                 placeholder={isListening ? '🎙️ Listening... speak clearly into mic...' : isComplete ? 'This session is completed. (Read-only mode)' : `Explain to ${persona?.name || 'the student'}...`}
                 rows={1}
-                className="input-field w-full px-4 py-3 text-sm resize-none leading-relaxed disabled:opacity-50"
+                className="input-field w-full px-4 py-3 text-sm font-medium leading-relaxed disabled:opacity-50"
                 style={{ maxHeight: '120px', overflowY: 'auto' }}
                 onInput={(e) => {
                   e.target.style.height = 'auto'
@@ -571,13 +563,13 @@ export default function Chat() {
               <button
                 onClick={sendMessage}
                 disabled={!input.trim() || isStreaming}
-                className="flex-shrink-0 btn-primary p-2.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed">
-                <Send size={16} />
+                className="flex-shrink-0 btn-primary p-3 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                <Send size={18} />
               </button>
             )}
           </div>
-          <div className="text-xs text-slate-600 mt-2 text-center flex items-center justify-center gap-2">
-            {isListening && <span className="text-red-400 font-semibold animate-pulse">● Recording Voice</span>}
+          <div className="text-xs font-medium text-slate-400 mt-2.5 text-center flex items-center justify-center gap-2">
+            {isListening && <span className="text-rose-600 font-bold animate-pulse uppercase">● Recording Voice</span>}
             <span>{isComplete ? 'Completed session history • Read-only' : 'Press Enter to send · Click 🎙️ for Free Mic Voice Mode'}</span>
           </div>
         </div>
@@ -585,14 +577,14 @@ export default function Chat() {
 
       {/* ── End Session Modal ─────────────────────────────────────────────── */}
       {showEndModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="card p-6 max-w-sm w-full animate-fade-up">
-            <h3 className="font-display font-bold text-lg mb-2">End this session?</h3>
-            <p className="text-sm text-slate-400 mb-5">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="card p-7 max-w-sm w-full animate-fade-up shadow-xl">
+            <h3 className="font-display font-extrabold text-xl mb-2 text-slate-900">End this session?</h3>
+            <p className="text-sm font-medium text-slate-600 mb-6">
               Your progress will be saved and you'll receive a mastery score.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setShowEndModal(false)} className="btn-ghost flex-1 py-2.5 text-sm">
+              <button onClick={() => setShowEndModal(false)} className="btn-ghost flex-1 py-2.5 text-xs font-bold uppercase">
                 Keep Teaching
               </button>
               <button
@@ -601,8 +593,7 @@ export default function Chat() {
                   await api.post(`/sessions/${id}/complete`)
                   navigate(`/session/${id}/complete`)
                 }}
-                className="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all"
-                style={{ background: 'rgba(239,68,68,0.15)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.25)' }}>
+                className="btn-danger flex-1 py-2.5 text-xs font-bold uppercase">
                 End Session
               </button>
             </div>
@@ -612,30 +603,30 @@ export default function Chat() {
 
       {/* ── Delete Session Modal ───────────────────────────────────────────── */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="card p-6 max-w-md w-full animate-fade-up border border-red-500/30">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="card p-7 max-w-md w-full animate-fade-up shadow-xl border-rose-200">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2 font-bold text-lg text-red-400">
-                <Trash2 size={20} /> Delete Session?
+              <div className="flex items-center gap-2 font-bold text-xl text-rose-600 uppercase">
+                <Trash2 size={22} /> Delete Session?
               </div>
-              <button onClick={() => setShowDeleteModal(false)} className="text-slate-500 hover:text-slate-300 p-1">
-                <X size={18} />
+              <button onClick={() => setShowDeleteModal(false)} className="text-slate-400 hover:text-slate-900 p-1">
+                <X size={20} />
               </button>
             </div>
-            <p className="text-sm text-slate-300 mb-2">
+            <p className="text-sm font-medium text-slate-700 mb-3">
               Are you sure you want to delete this session?
             </p>
-            <p className="text-xs text-slate-400 bg-red-500/10 border border-red-500/20 p-3 rounded-lg mb-6">
+            <p className="text-xs font-medium text-rose-900 bg-rose-50 border border-rose-200 p-3.5 rounded-xl mb-6">
               ⚠️ This will permanently remove the transcript, evaluator metrics, and all associated lecture notes.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setShowDeleteModal(false)} className="btn-ghost flex-1 py-2.5 text-sm">
+              <button onClick={() => setShowDeleteModal(false)} className="btn-ghost flex-1 py-2.5 text-xs font-bold uppercase">
                 Cancel
               </button>
               <button
                 onClick={handleDeleteSession}
                 disabled={isDeleting}
-                className="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30 transition-all flex items-center justify-center gap-2">
+                className="btn-danger flex-1 py-2.5 text-xs font-bold uppercase">
                 {isDeleting ? 'Deleting...' : 'Delete Permanently'}
               </button>
             </div>
@@ -645,19 +636,19 @@ export default function Chat() {
 
       {/* ── Full Lecture Notes Modal ────────────────────────────────────────── */}
       {showNotesModal && session?.lectureContent && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-6">
-          <div className="card max-w-3xl w-full max-h-[85vh] flex flex-col animate-fade-up border border-teal-500/30 shadow-2xl">
-            <div className="p-5 border-b border-white/10 flex items-center justify-between flex-shrink-0">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="card max-w-3xl w-full max-h-[85vh] flex flex-col animate-fade-up shadow-2xl">
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between flex-shrink-0 bg-white rounded-t-2xl">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-xl">
+                <div className="w-10 h-10 rounded-xl bg-teal-100 border border-teal-200 flex items-center justify-center text-xl font-bold">
                   📄
                 </div>
                 <div>
-                  <h3 className="font-semibold text-base text-slate-100">
+                  <h3 className="font-bold text-base text-slate-900">
                     {session.topic || `${session.subject} Lecture Notes`}
                   </h3>
-                  <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-                    <span className="text-teal-400 font-medium">{session.subject}</span>
+                  <div className="flex items-center gap-2 text-xs font-medium text-slate-500 mt-0.5">
+                    <span className="text-amber-600 font-bold">{session.subject}</span>
                     <span>•</span>
                     <span>{session.lectureContent.length} characters</span>
                   </div>
@@ -667,22 +658,22 @@ export default function Chat() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleCopyNotes(session.lectureContent)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 border border-white/10 text-slate-300 hover:text-white flex items-center gap-1.5 transition-all">
-                  {copiedNotes ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase bg-amber-400 text-slate-950 shadow-xs hover:bg-amber-300 flex items-center gap-1.5 transition-all cursor-pointer">
+                  {copiedNotes ? <Check size={16} className="text-slate-950 stroke-[2.5]" /> : <Copy size={16} />}
                   <span>{copiedNotes ? 'Copied!' : 'Copy Text'}</span>
                 </button>
-                <button onClick={() => setShowNotesModal(false)} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/10 transition-colors">
-                  <X size={20} />
+                <button onClick={() => setShowNotesModal(false)} className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 transition-colors">
+                  <X size={22} />
                 </button>
               </div>
             </div>
 
-            <div className="p-6 overflow-y-auto flex-1 bg-slate-950/60 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap selection:bg-teal-500/30">
+            <div className="p-6 overflow-y-auto flex-1 bg-[#F8FAFC] font-mono text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap selection:bg-amber-200">
               {session.lectureContent}
             </div>
 
-            <div className="p-4 border-t border-white/10 flex items-center justify-end flex-shrink-0 bg-slate-900/40">
-              <button onClick={() => setShowNotesModal(false)} className="btn-teal px-5 py-2 text-xs font-semibold">
+            <div className="p-4 border-t border-slate-200 flex items-center justify-end flex-shrink-0 bg-white rounded-b-2xl">
+              <button onClick={() => setShowNotesModal(false)} className="btn-teal px-6 py-2.5 text-xs font-bold uppercase">
                 Close Notes
               </button>
             </div>
@@ -698,27 +689,25 @@ function MessageBubble({ message, persona, isSpeaking, onToggleSpeak }) {
 
   if (isUser) {
     return (
-      <div className="flex justify-end mb-3 animate-fade-up">
+      <div className="flex justify-end mb-2 animate-fade-up">
         <div className="bubble-user px-4 py-3 max-w-lg">
-          <p className="text-sm leading-relaxed">{message.content}</p>
+          <p className="text-sm leading-relaxed font-semibold">{message.content}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex gap-3 items-end mb-3 animate-fade-up group">
-      <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base flex-shrink-0 mb-0.5"
-        style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.15)' }}>
+    <div className="flex gap-3 items-end mb-2 animate-fade-up group">
+      <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center text-lg font-bold flex-shrink-0 mb-0.5">
         {persona?.avatar || '🤖'}
       </div>
       <div className="max-w-lg">
         <div className="flex items-center justify-between gap-2 mb-1.5 ml-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-amber-400/80">{persona?.name || 'Student'}</span>
+            <span className="text-xs font-bold text-slate-900">{persona?.name || 'Student'}</span>
             {message.phase === 2 && (
-              <span className="text-xs px-1.5 py-0.5 rounded-full font-medium"
-                style={{ background: 'rgba(20,184,166,0.1)', color: '#14B8A6', fontSize: '10px' }}>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-teal-100 text-teal-800 border border-teal-200">
                 Phase 2
               </span>
             )}
@@ -726,25 +715,28 @@ function MessageBubble({ message, persona, isSpeaking, onToggleSpeak }) {
           {onToggleSpeak && (
             <button
               onClick={onToggleSpeak}
-              className={`p-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+              className={`px-2.5 py-1 rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-1.5 cursor-pointer border ${
                 isSpeaking
-                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 opacity-100'
-                  : 'opacity-50 group-hover:opacity-100 text-slate-400 hover:text-amber-400 hover:bg-white/5'
+                  ? 'bg-amber-400 text-slate-950 border-amber-500 animate-pulse'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
               }`}
               title={isSpeaking ? 'Click to Stop Voice' : 'Listen to Student'}>
               {isSpeaking ? (
                 <>
-                  <VolumeX size={18} className="text-amber-400 animate-pulse" />
-                  <span className="text-[11px] font-semibold text-amber-400">Stop</span>
+                  <VolumeX size={14} />
+                  <span>Stop</span>
                 </>
               ) : (
-                <Volume2 size={18} />
+                <>
+                  <Volume2 size={14} />
+                  <span>Audio</span>
+                </>
               )}
             </button>
           )}
         </div>
         <div className="bubble-ai px-4 py-3">
-          <p className="text-sm leading-relaxed">{message.content}</p>
+          <p className="text-sm leading-relaxed text-slate-900">{message.content}</p>
         </div>
       </div>
     </div>
